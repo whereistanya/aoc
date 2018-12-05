@@ -1,5 +1,5 @@
-# Advent of code Day 1.
 #!/usr/bin/env python
+# Advent of code Day 1.
 
 freq = 0
 
