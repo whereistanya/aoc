@@ -9,6 +9,7 @@ class Cart(object):
     self.y = y
     self.next_move = next_move # up, down, left, right
     self.next_decision = "left" # left, straight, right
+    self.active = True
 
   def __lt__(self, other):
     """For sorting."""
@@ -73,15 +74,16 @@ class Grid(object):
   def __init__(self, lines):
     self.grid = []  # [y][x]
     self.carts = []
-    self.current_locations = set()  # (x, y)
+    self.current_locations = {}  # (x, y): Cart
     cart_symbols = set(["v", "^", "<", ">"])
     for line in lines:
       row = []
       for char in line:
         if char in cart_symbols:
           next_move = self._get_next_move(char)
-          self.carts.append(Cart(len(row), len(self.grid), next_move))
-          self.current_locations.add((len(row), len(self.grid)))
+          cart = Cart(len(row), len(self.grid), next_move)
+          self.current_locations[(len(row), len(self.grid))] = cart
+          self.carts.append(cart)
           char = "-"  # "|" and "-" are interchangable, except to human eyes
         else:
           assert char in [" ", "|", "-", "\\", "/", "+", "\n"]
@@ -99,11 +101,17 @@ class Grid(object):
     return s
 
   def move(self):
+    # Part 2: only one cart left.
+    if len(self.current_locations) == 1:
+      print self.current_locations
+      sys.exit(1)
     for cart in sorted(self.carts):
+      if not cart.active:
+        continue
       x = cart.x
       y = cart.y
+      self.current_locations.pop((x, y))
       move = cart.next_move
-      self.current_locations.remove((x, y))
 
       # Expect good data; crash if moves don't exist
       if move == "down":
@@ -124,14 +132,15 @@ class Grid(object):
       else:
         print "move shouldn't be", move
 
-      if (cart.x, cart.y) in self.current_locations:
+      if (cart.x, cart.y) in self.current_locations.keys():
         print "crash at %d,%d" % (cart.x, cart.y)
-        sys.exit(1)
-      self.current_locations.add((cart.x, cart.y))
+        other_cart = self.current_locations.pop((cart.x, cart.y))
 
-
+        cart.active = False
+        other_cart.active = False
+      else:
+        self.current_locations[(cart.x, cart.y)] = cart
       cart.change_direction(symbol)
-
 
   def _get_next_move(self, symbol):
     directions = {
@@ -172,4 +181,3 @@ print sorted(grid.carts)
 while True:
 # Run until crash
   grid.move()
-  print sorted(grid.carts)
