@@ -3,10 +3,12 @@
 
 class PowerGrid(object):
 	def __init__(self, serial):
+		self.max = 300
 		self.grid = {}
+		self.squares = {}  # (x, y, size)
 		self.serial = serial
-		for x in range(0, 300):
-			for y in range(0, 300):
+		for x in range(0, self.max):
+			for y in range(0, self.max):
 				self.grid[(x, y)] = self.get_power_level(x, y)
 
 	def get_power_level(self, x, y):
@@ -21,47 +23,46 @@ class PowerGrid(object):
 		power_level -= 5
 		return power_level
 
-	def get_highest_square(self):
-		totals = {}
-		for x in range(1, 299):
-			for y in range(1, 299): # center of 3x3 square
-				total_power = self.get_square(x, y, 3)
-				totals[(x - 1, y - 1)] = total_power
+	def get_highest_square(self, size):
+		for x in range(0, self.max):
+			for y in range(0, self.max): # center of 3x3 square
+				for z in range(1, size):
+					total_power = self.get_square(x, y, size)
+					if total_power:
+						self.squares[(x, y, size)] = total_power
 
 		max_total = 0
 		max_point = None
-		for key, total in totals.iteritems():
+		for key, total in self.squares.iteritems():
 			if total > max_total:
 				max_total = total
 				max_point = key
 
 		return max_point, max_total
 
-
 	def get_square(self, x, y, size):
-		total_power =  self.grid[(x - 1, y - 1)]
-		total_power += self.grid[(x    , y - 1)]
-		total_power += self.grid[(x + 1, y - 1)]
-		total_power += self.grid[(x - 1, y)]
-		total_power += self.grid[(x    , y)]
-		total_power += self.grid[(x + 1, y)]
-		total_power += self.grid[(x - 1, y + 1)]
-		total_power += self.grid[(x    , y + 1)]
-		total_power += self.grid[(x + 1, y + 1)]
+		if (x + size) > self.max or (y + size) > self.max:
+			return None
+		total_power = 0
+		for i in range (0, size):
+			for j in range (0, size):
+				total_power  += self.grid[(x + i, y + j)]
 
 		return total_power
 
 
 
 # tests
-assert PowerGrid(8).get_power_level(3, 5) == 4
-assert PowerGrid(57).get_power_level(122, 79) == -5
-assert PowerGrid(39).get_power_level(217, 196) == 0
-assert PowerGrid(71).get_power_level(101, 153) == 4
-assert PowerGrid(18).get_highest_square() == ((33, 45), 29)
-assert PowerGrid(42).get_highest_square() == ((21, 61), 30)
+#assert PowerGrid(8).get_power_level(3, 5) == 4
+#assert PowerGrid(57).get_power_level(122, 79) == -5
+#assert PowerGrid(39).get_power_level(217, 196) == 0
+#assert PowerGrid(71).get_power_level(101, 153) == 4
+#assert PowerGrid(18).get_highest_square(3) == ((33, 45, 3), 29)
+#assert PowerGrid(42).get_highest_square(3) == ((21, 61, 3), 30)
 
 serial = 9306
 grid = PowerGrid(serial)
-print grid.get_highest_square()  # Submit without a space
+print grid.get_highest_square(3)  # Submit without a space
+#grid = PowerGrid(18)
+#print grid.get_highest_square(16)
 
