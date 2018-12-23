@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-# Advent of code Day 2.
+# Advent of code Day 5.
 
 import string
 import sys
