@@ -16,13 +16,14 @@ class Army(object):
     self.name = name
     self.unitgroups = blist([])
     self.id_gen = self.next_id()
+    self.attack_boost = 0
 
   def add(self, groups):
     assert len(groups) == 6
     count = int(groups[0])
     hp = int(groups[1])
     immune_system = groups[2]
-    attack_power = int(groups[3])
+    attack_power = int(groups[3]) + self.attack_boost
     damage_type = groups[4]
     initiative = int(groups[5])
     unitgroup = UnitGroup(count, hp, attack_power, damage_type, initiative)
@@ -31,6 +32,7 @@ class Army(object):
     if immune_system:
       unitgroup.add_resistance_levels(immune_system)
     self.unitgroups.append(unitgroup)
+
 
   def units(self):
     total = 0
@@ -163,11 +165,12 @@ class UnitGroup(object):
 
 
 class Game(object):
-  def __init__(self):
+  def __init__(self, immune_boost=0):
     self.immune_army = None
     self.infection_army = None
     with open("day24input.txt", "r") as f:
       lines = f.readlines()
+    self.immune_boost = immune_boost
 
     """
     lines = [
@@ -196,6 +199,7 @@ class Game(object):
         continue
       if line.strip() == "Immune System:":
         army = Army("Immune")
+        army.attack_boost = self.immune_boost
         self.immune_army = army
         continue
       if line.strip()  == "Infection:":
@@ -227,27 +231,49 @@ class Game(object):
         #  unit.army, unit.id, killed, target.army, target.id)
 
   def status(self):
-    print "Immune System (%d):" % self.immune_army.units()
+    s = "Immune System (%d):\n" % self.immune_army.units()
     for group in self.immune_army.unitgroups:
-      print "Group %s contains %d units" % (group.id, group.units)
-    print "Infection (%d):" % self.infection_army.units()
+      s += "Group %s contains %d units\n" % (group.id, group.units)
+    s += "Infection (%d):\n" % self.infection_army.units()
     for group in self.infection_army.unitgroups:
-      print "Group %s contains %d units" % (group.id, group.units)
-    print
+      s += "Group %s contains %d units\n" % (group.id, group.units)
+    return s
 
 game = Game()
-game.status()
 
 i = 0
 while not game.over():
   i += 1
   game.fight()
-  #game.status()
 
-print "Over after %d rounds" % i
-game.status()
+print "Part 1: Over after %d rounds" % i
+print game.status()
 
 ######################################
 # Part two
 ######################################
+
+print "Part 2:"
+
+def play(immune_boost):
+  game = Game(immune_boost=immune_boost)
+  laststatus = ""
+  while not game.over():
+    game.fight()
+    status = game.status()
+    if status == laststatus:
+      break
+    laststatus = status
+  if game.immune_army.units() == 0:
+    print "%d: Infection army wins with %d" % (immune_boost, game.infection_army.units())
+  elif game.infection_army.units() == 0:
+    print "%d: Immune army wins with %d" % (immune_boost, game.immune_army.units())
+  else:
+    print "%d: Stalemate." % (immune_boost)
+
+# This could be a fancy binary search but the code is fast enough that it
+# doesn't matter.
+for i in range (0, 80):
+  play(i)
+
 
