@@ -125,6 +125,6 @@ while to_check:
   print starting_point, tool
   print starting_point.moves()
 
-  # BFS in three dimensions.
+  # DFS with memozation.
 
 
