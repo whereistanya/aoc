@@ -4,9 +4,6 @@
 import re
 import sys
 
-import numpy as np
-import pyoctree
-
 class Nanobot(object):
   def __init__(self, x, y, z, r):
     self.x = x
@@ -36,22 +33,6 @@ class Nanobot(object):
     other.others[self] = distance
 
     return distance <= self.r
-
-  def overlaps(self, other):
-    """How far away are the bots' ranges."""
-    # if it's less than zero, their ranges overlap
-    # but maxx/y/z doesn't work
-    # if they have an x, a y and a z in common, does that work?
-    if self.min_x > other.max_x or self.max_x < other.min_x:
-      return False
-    if self.min_y > other.max_y or self.max_y < other.min_y:
-      return False
-    if self.min_z > other.max_z or self.max_z < other.min_z:
-      return False
-
-    # this is not true probably?
-    return True
-
 
 with open("day23input.txt", "r") as f:
   lines = f.readlines()
@@ -110,85 +91,140 @@ for bot in bots:
 
 print "%d bots in range" % in_range
 
-"""
-min_x = 1000000000
+# Part two
+
+min_x = 1000000000000
 max_x = 0
-min_y = 1000000000
+min_y = 1000000000000
 max_y = 0
-min_z = 1000000000
+min_z = 1000000000000
 max_z = 0
 
+bot_count = 0
 for bot in bots:
-  if bot.max_x > max_x:
-    max_x = bot.max_x
-  if bot.max_y > max_y:
-    max_y = bot.max_y
-  if bot.max_z > max_z:
-    max_z = bot.max_z
-  if bot.min_x < min_x:
-    min_x = bot.min_x
-  if bot.min_y < min_y:
-    min_y = bot.min_y
-  if bot.min_z < min_z:
-    min_z = bot.min_z
+  bot_count += 1
+  if bot.x > max_x:
+    max_x = bot.x
+  if bot.y > max_y:
+    max_y = bot.y
+  if bot.z > max_z:
+    max_z = bot.z
+  if bot.x < min_x:
+    min_x = bot.x
+  if bot.y < min_y:
+    min_y = bot.y
+  if bot.z < min_z:
+    min_z = bot.z
 
-print min_x, max_x, min_y, max_y, min_z, max_z
-# -184808155 350229460 -143101429 290189682 -158623074 212838874
-# big numbers!
-"""
+print min_x, min_y, min_z
+print max_x, max_y, max_z
 
-# heuristically...
+# https://raw.githack.com/ypsu/experiments/master/aoc2018day23/vis.html
+class Octree(object):
+  def __init__(self):
+    pass
 
-p = 0
-"""
-approx = {} # int: number of bots
-for bot in bots:
-  #print bot
-  x = bot.min_x
-  while x < bot.max_x:
-    y = bot.min_y
-    while y < bot.max_y:
-      z = bot.min_z
-      while z < bot.max_z:
-        #print (x, y, z)
-        for other in bots:
-          if (bot.in_range(other)):
-            try:
-              approx[(x, y, z)] += 1
-            except KeyError:
-              approx[(x, y, z)] = 1
-            try:
-              xes[x] += 1
-            except KeyError:
-              xes[x] == 1
-        z += 100000000
-      y += 100000000
-    x += 100000000
-"""
+class Cube(object):
+  def __init__(self, min_x, min_y, min_z, size):
+    self.count = -1
+    self.min_x = min_x
+    self.max_x = min_x + size -1
+    self.min_y = min_y
+    self.max_y = min_y + size -1 
+    self.min_z = min_z
+    self.max_z = min_z + size -1
+    self.size = size
+    self.distance = abs(min_x) + abs(min_y) + abs(min_z)  # distance from the origin
 
-print len(bots)
-overlaps = {}
-for bot in bots:
-  overlaps[bot] = 0
+  def __eq__(self, other):
+    if self.x != other.x:
+      return False
+    if self.y != other.y:
+      return False
+    if self.z != other.z:
+      return False
+    if self.size != other.size:
+      return False
+    return True
 
-for bot in bots:
-  #print bot
-  for other in bots:
-    if bot.overlaps(other):
-      overlaps[bot] += 1
+  def __lt__(self, other):
+    if self.count < other.count:
+      return True
+    if other.count < self.count:
+      return False
+    if self.distance < other.distance:
+      return True
+    if other.distance < self.distance:
+      return False
+    return self.size < other.size
 
-min_x = 0
-min_y = 0
-min_z = 0
+  def __repr__(self):
+    return "Cube(%d,%d,%d/%d (%d from orig; %d bots))" % (
+      self.min_x, self.min_y, self.min_z, self.size, self.distance, self.count)
 
-for o in overlaps:
-  if overlaps[o] > 990:
-    print o
+  def in_range(self, bot):
+    # find the edge of the cube closest to the point
+    distance = 0
+    if bot.x < self.min_x:
+      distance += self.min_x - bot.x
+    if bot.x > self.max_x:
+      distance += bot.x - self.max_x
+    if bot.y < self.min_y:
+      distance += self.min_y - bot.y
+    if bot.y > self.max_y:
+      distance += bot.y - self.max_y
+    if bot.z < self.min_z:
+      distance += self.min_z - bot.z
+    if bot.z > self.max_z:
+      distance += bot.z - self.max_z
 
-#sorted_overlaps = sorted(overlaps.items(), key=lambda x: x[1], reverse = True)
+    if distance <= bot.r:
+      return True
+    return False
 
-#print sorted_overlaps
+# main
+needed = max(max_x - min_x, max_y - min_y, max_z - min_z)
+side = 2
+while side < needed:
+  side *= 2
 
-# 90129540,43291201,69471683
+to_check = [Cube(min_x, min_y, min_z, side)]
 
+while to_check:
+  to_check = sorted(to_check)
+  #print "Options are", to_check
+  cube = to_check.pop()  # highest bots, TODO: confirm
+  bot_count = 0
+  for bot in bots:
+    if cube.in_range(bot):
+      bot_count += 1
+  cube.count = bot_count
+  #print "Chosen cube: %s" % cube
+  if cube.size == 1:
+    print "We're done."
+    print cube.distance
+    break
 
+  min_x = cube.min_x
+  min_y = cube.min_y
+  min_z = cube.min_z
+  half = cube.size / 2
+  half_x = half + min_x
+  half_y = half + min_y
+  half_z = half + min_z
+
+  new_cubes = [
+    (min_x, min_y, min_z), (min_x, min_y, half_z),
+    (min_x, half_y, min_z), (min_x, half_y, half_z),
+    (half_x, min_y, min_z), (half_x, min_y, half_z),
+    (half_x, half_y, min_z), (half_x, half_y, half_z)
+  ]
+
+  for x, y, z in new_cubes:
+    new_cube = Cube(x, y, z, half)
+    bot_count = 0
+    for bot in bots:
+      if new_cube.in_range(bot):
+        bot_count += 1
+    new_cube.count = bot_count
+    to_check.append(new_cube)
