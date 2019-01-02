@@ -40,7 +40,6 @@ class Constellation(object):
     if a < self.min_a:
       distance += (self.min_a - a)
 
-    print "%s distance from %s is %d" % (point, self, distance)
     max_connected = False
     if distance <= 3:
       max_connected = True
@@ -48,9 +47,7 @@ class Constellation(object):
     for star in self.stars:
       if point == star:
         continue
-      print star
       star_x, star_y, star_z, star_a = star
-      print (abs(star_x - x) + abs(star_y - y) + abs(star_z - z) + abs(star_a - a))
       if (abs(star_x - x) + abs(star_y - y) + abs(star_z - z) + abs(star_a - a)) <= 3:
         star_connected = True
     if star_connected != max_connected:
@@ -105,38 +102,24 @@ def make_constellations(lines):
     points.add((int(x),int(y),int(z),int(a)))
 
   for point in points:
-    print point
     matched = []
     for constellation in constellations:
       if constellation.connected(point):
         matched.append(constellation)
-        print "%s is in %s" % (point, constellation)
 
-    print "matched %d constellations" % (len(matched))
     if len(matched) == 0:
       new_constellation = Constellation(point)
       new_constellation.stars.add(point)
       constellations.add(new_constellation)
-      print "added", new_constellation
-      print "there are now %d constellations" % len(constellations)
-      print constellations
-      print
     elif len(matched) == 1:
       matched[0].insert(point)
-      print "there are now %d constellations" % len(constellations)
-      print constellations
-      print
     else:
       main_constellation = matched[0]
       for i in range(1, len(matched)):
         other_constellation = matched[i]
-        print "merging %s into %s" % (other_constellation, main_constellation)
         main_constellation.extend(other_constellation)
         constellations.remove(other_constellation)
         main_constellation.insert(point)
-        print "there are now %d constellations" % len(constellations)
-        print constellations
-        print
 
   return constellations
 
@@ -197,6 +180,4 @@ assert len(make_constellations(lines2)) == 4
 assert len(make_constellations(lines3)) == 3
 assert len(make_constellations(lines4)) == 8
 
-#print len(make_constellations(lines))
-
-# Not 350: too low.
+print len(make_constellations(lines))
