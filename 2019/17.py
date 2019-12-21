@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-# Advent of code Day 15
+# Advent of code Day 17
 
 import collections
 import itertools
@@ -53,7 +53,7 @@ class Computer(Thread):
     self.inputs.clear()
 
   def set_inputs(self, inputs):
-    #print "INPUT!", inputs
+    print "INPUT!", inputs
     for n in inputs:
       self.inputs.append(n)
 
@@ -147,6 +147,7 @@ class Computer(Thread):
     #print "Enter input! "
     #value = int(input())
     value = self.next_input()
+    #print "Read input: %d" % value
     out_register = self.read_output_position(index + 1, modes[0])
     self.write_value(out_register, value)
     return index + 2
@@ -266,77 +267,29 @@ class Robot(Thread):
   def move(self):
     pass
 
-  def display(self):
-    #os.system('clear')
-    print "---------------------------------------------------------------------------------"
-    for y in range (0, 50):
-      s = ""
-      for x in range(0, 60):
-        try:
-          s += (self.squares[(x, y)])
-        except KeyError:
-          s += " "
-      ys = ("%d" % y).zfill(2)
-      print "%s %s" % (ys, s)
-
-  def coords(self, x, y, n):
-    if n == 1: # north
-      return (x, y - 1)
-    if n == 2: # south
-      return (x, y + 1)
-    if n == 3: # west
-      return (x - 1, y)
-    if n == 4: # east
-      return (x + 1, y)
-    print "Bad value", n
-    raise ValueError
-
-  def run(self):
+  def parse_input(self):
+    # Reads input until a newline and returns it.
     output = []
-    chars = {
-      35: "#",
-      46: ".",
-      10: "\n",
-      94: "^",
-    }
     s = ""
-    x = 0
-    y = 0
-    for i in range(0, 2000):
+    while True:
       n = self.next_input()
       if n == "-88":
-        break
+        return s, True
       try:
-        o = chars[n]
-      except KeyError:
-        print n
-        o = "?"
-      if n == 10:
-        print s
-        s = ""
-        y += 1
-        x = 0
+        o = chr(n)
+        if o == "X":
+          s += o
+          # we fell down
+          self.halt()
+          return s, True
+      except ValueError:
+        o = "[%d]" % n
+      if n == 10: # newline
+        return s, False
       else:
         s += o
-        if (x, y) in self.squares:
-          print (x, y)
-        self.squares[(x, y)] = o
-        x += 1
 
-    """
-# Test data
-    walls = [(2,0), (2,1), (2,2), (2,3), (2,4), (2,5), (2,6),
-             (3,6), (4,6), (5,6), (6,6), (6,5), (6,4), (6,3),
-             (6,2), (5,2), (4,2), (3,2), (2,2), (1,2), (0,2),
-             (0,3), (0,4), (1,4), (2,4), (3,4), (4,4), (5,4),
-             (6,4), (7,4), (8,4), (9,4), (10,4), (11,4), (12,4),
-             (12,3), (12,2), (11,2), (10,2), (10,3), (10,4),
-             (10,5)]
-    self.squares = {}
-    for wall in walls:
-      self.squares[wall] = "#"
-    """
-
+  def count_parameters(self):
     total = 0
     count = 0
     for square in self.squares:
@@ -359,21 +312,41 @@ class Robot(Thread):
         print "%d * %d = %d" % (x, y, x * y)
       except KeyError:
         continue
-
     print "Found %d parameters" % count
-    self.display()
 
-    print total
+  def send_input(self, code):
+    inputs = {
+      "A": list(map(ord, "R,4,L,12,L,8,R,4\n")),
+      "B": list(map(ord, "L,8,R,10,R,10,R,6\n")),
+      "C": list(map(ord, "R,4,R,10,L,12\n")),
+      "Main": list(map(ord, 'A,B,A,C,A,B,A,C,B,C\n')),
+      "y": list(map(ord, 'y\n')),
+    }
 
-# 453 is too low
-# 4118 too high
+    computer.set_inputs(inputs[code])
+
+  def run(self):
+    while not self.stop_event.set():
+      s, halt = self.parse_input()
+      print s
+      if halt:
+        sys.exit(1)
+      if s.startswith("Main:"):
+        self.send_input("Main")
+        self.send_input("A")
+        self.send_input("B")
+        self.send_input("C")
+        self.send_input("y")
+        print "All input sent."
+
+
 computer = Computer("COMPUTER")
 computer.reset()
 computer.set_program(program)
+computer.program[0] = 2  # part 2
 
 robot = Robot(computer)
 computer.set_output(robot)
-
 computer.start()
 robot.start()
 
