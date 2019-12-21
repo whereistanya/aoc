@@ -33,7 +33,7 @@ class Computer(Thread):
     self.program = program
 
   def set_inputs(self, inputs):
-    #print "Setting inputs to", inputs
+    print self.name, ": setting inputs to", inputs
     for n in inputs:
       self.inputs.append(n)
 
@@ -43,7 +43,7 @@ class Computer(Thread):
   def next_input(self):
     while len(self.inputs) == 0:
       #print "NO INPUT for", self.name
-      time.sleep(0.001)
+      time.sleep(1)
     return self.inputs.popleft()
 
   def jit(self, modes, index):
@@ -117,7 +117,7 @@ class Computer(Thread):
     #print "Enter input! "
     #value = int(input())
     value = self.next_input()
-    #print "%s: INPUT: %d" % (self.name, value)
+    print "%s: INPUT: %d" % (self.name, value)
     #print "Accepting input %d" % value
     self.program[self.program[index + 1]] = value
     return index + 2
@@ -127,7 +127,7 @@ class Computer(Thread):
       n = self.program[self.program[index + 1]]
     else:
       n = self.program[index + 1]
-    #print "%s: Diagnostic code: %d" % (self.name, n)
+    print "%s: Diagnostic code: %d" % (self.name, n)
     self.output = n
     self.output_computer.set_inputs([n])
     return index + 2
@@ -161,6 +161,7 @@ class Computer(Thread):
 
     n = x + y
     self.program[self.program[index + 3]] = n
+    print "%s %d + %d = %d" % (self.name, x, y, n)
     return index + 4
 
   def run(self):
@@ -234,8 +235,7 @@ run(program, phase_seq)
 assert computer.output == 65210
 print "\nTests passed."
 """
-program = [3,8,1001,8,10,8,105,1,0,0,21,42,51,60,77,94,175,256,337,418,99999,3,9,1001,9,4,9,102,5,9,9,1001,9,3,9,102,5,9,9,4,9,99,3,9,102,2,9,9,4,9,99,3,9,1001,9,3,9,4,9,99,3,9,101,4,9,9,1002,9,4,9,101,5,9,9,4,9,99,3,9,1002,9,5,9,101,3,9,9,102,2,9,9,4,9,99,3,9,1001,9,1,9,4,9,3,9,1002,9,2,9,4,9,3,9,102,2,9,9,4,9,3,9,102,2,9,9,4,9,3,9,102,2,9,9,4,9,3,9,101,2,9,9,4,9,3,9,101,2,9,9,4,9,3,9,101,2,9,9,4,9,3,9,1001,9,1,9,4,9,3,9,101,1,9,9,4,9,99,3,9,1001,9,2,9,4,9,3,9,101,1,9,9,4,9,3,9,102,2,9,9,4,9,3,9,1001,9,1,9,4,9,3,9,101,2,9,9,4,9,3,9,1002,9,2,9,4,9,3,9,1001,9,1,9,4,9,3,9,101,1,9,9,4,9,3,9,1001,9,2,9,4,9,3,9,1002,9,2,9,4,9,99,3,9,101,2,9,9,4,9,3,9,102,2,9,9,4,9,3,9,101,2,9,9,4,9,3,9,102,2,9,9,4,9,3,9,1002,9,2,9,4,9,3,9,102,2,9,9,4,9,3,9,102,2,9,9,4,9,3,9,101,2,9,9,4,9,3,9,1001,9,2,9,4,9,3,9,101,2,9,9,4,9,99,3,9,101,2,9,9,4,9,3,9,1002,9,2,9,4,9,3,9,1001,9,1,9,4,9,3,9,101,1,9,9,4,9,3,9,1001,9,1,9,4,9,3,9,1002,9,2,9,4,9,3,9,1002,9,2,9,4,9,3,9,101,1,9,9,4,9,3,9,102,2,9,9,4,9,3,9,101,2,9,9,4,9,99,3,9,1001,9,2,9,4,9,3,9,101,2,9,9,4,9,3,9,1002,9,2,9,4,9,3,9,101,2,9,9,4,9,3,9,101,2,9,9,4,9,3,9,102,2,9,9,4,9,3,9,1002,9,2,9,4,9,3,9,102,2,9,9,4,9,3,9,1002,9,2,9,4,9,3,9,101,1,9,9,4,9,99]
-
+program = [3,26,1001,26,-4,26,3,27,1002,27,2,27,1,27,26, 27,4,27,1001,28,-1,28,1005,28,6,99,0,0,5] 
 
 
 """
@@ -254,54 +254,55 @@ print "Highest signal is", highest
 
 highest = 0
 
+#for order in itertools.permutations([9, 8, 7, 6, 5]):
+computer1 = Computer("A")
+computer2 = Computer("B")
+computer3 = Computer("C")
+computer4 = Computer("D")
+computer5 = Computer("E")
+
+order = [9, 8, 7, 6, 5]
+print order
+
+
+computer1.set_inputs([order[0], 0])
+computer1.set_program(list(program))
+computer1.set_output(computer2)
+
+computer2.set_inputs([order[1]])
+computer2.set_program(list(program))
+computer2.set_output(computer1)
+
+#computer3.set_inputs([order[2]])
+#computer3.set_program(list(program))
+#computer3.set_output(computer4)
+#
+#computer4.set_inputs([order[3]])
+#computer4.set_program(list(program))
+#computer4.set_output(computer5)
+#
+#computer5.set_inputs([order[4]])
+#computer5.set_program(list(program))
+#computer5.set_output(computer1)
+#
+computer1.start()
+computer2.start()
+#computer3.start()
+#computer4.start()
+#computer5.start()
+
+computer1.join()
+computer2.join()
+#computer3.join()
+#computer4.join()
+#computer5.join()
+
+
 """
-for i in range(0, len(phase_seq)):
-  computer.set_inputs([phase_seq[i], computer.output])
-  computer.set_program(program)
-  computer.run()
-"""
-
-for order in itertools.permutations([9, 8, 7, 6, 5]):
-  computer1 = Computer("A")
-  computer2 = Computer("B")
-  computer3 = Computer("C")
-  computer4 = Computer("D")
-  computer5 = Computer("E")
-
-  print order
-
-  computer1.set_inputs([order[0], 0])
-  computer1.set_program(list(program))
-  computer1.set_output(computer2)
-
-  computer2.set_inputs([order[1]])
-  computer2.set_program(list(program))
-  computer2.set_output(computer3)
-
-  computer3.set_inputs([order[2]])
-  computer3.set_program(list(program))
-  computer3.set_output(computer4)
-
-  computer4.set_inputs([order[3]])
-  computer4.set_program(list(program))
-  computer4.set_output(computer5)
-
-  computer5.set_inputs([order[4]])
-  computer5.set_program(list(program))
-  computer5.set_output(computer1)
-
-  computer1.start()
-  computer2.start()
-  computer3.start()
-  computer4.start()
-  computer5.start()
-
-  computer1.join()
-  computer2.join()
-  computer3.join()
-  computer4.join()
-  computer5.join()
-  print computer5.output
+print computer5.output
   if computer5.output > highest:
     highest = computer5.output
+
+
 print "Highest signal is", highest
+"""
