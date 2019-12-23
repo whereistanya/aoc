@@ -230,20 +230,101 @@ with open("input19.txt") as f:
   program = [int(x) for x in f.read().split(",")]
 
 
+squares = {}
 
 count = 0
-for x in range(0, 50):
-  for y in range(0, 50):
-    computer = Computer("COMPUTER")
-    computer.reset()
-    computer.set_program(program)
-    computer.set_inputs([x])
-    computer.set_inputs([y])
-    computer.run()
-    out = computer.output
-    if out == 1:
-      count += 1
-    #print x, y, out
 
-print "Count was %d" % count
+def test(x, y, computer):
+  computer.clear_inputs()
+  computer.set_program(program)
+  computer.set_inputs([x, y])
+  computer.run()
+  out = computer.output
+  if out == 1:
+    return True
+  if out == 0:
+    return False
+  print "Unexpected return from computer: %d" % out
+  raise ValueError
 
+def find_leftmost_x(x, y, computer):
+  # take x as a hint and look for the leftmost true square
+  found = test(x, y, computer)
+  if found: # x,y is good, look left
+    while True:
+      x = x - 1
+      found = test(x, y, computer)
+      if not found:
+        return x + 1
+  else: # not at x,y so look right
+    while True:
+      x = x + 1
+      found = test(x, y, computer)
+      if found:
+        return x
+
+def find_rightmost_x(x, y, computer):
+  # take x as a hint and look for the rightmost true square
+  found = test(x, y, computer)
+  if found: # x,y is good, look right
+    while True:
+      x = x + 1
+      found = test(x, y, computer)
+      if not found:
+        return x - 1
+  else: # not at x,y so look left
+    while True:
+      x = x - 1
+      found = test(x, y, computer)
+      if found:
+        return x
+      if x < 0:
+        raise ValueError
+
+def look_back(x, y, squares, width):
+  #print "look_back", x
+  while (x, y) in squares:
+    #print "%d,%d; looking at %d,%d" % (
+    #    x, y, x, y - (width - 1))
+    if ((x, y - (width)) in squares and
+        (x + width, y - width) in squares):
+        return x
+    else:
+      x += 1
+  return None
+
+count = 0
+width = 100
+innerwidth = width - 1
+computer = Computer("COMPUTER")
+left = width / 2 # just a guess
+right = width * 3 # same
+for y in range(width, width * 20):
+  left = find_leftmost_x(left, y, computer)
+  right = find_rightmost_x(right, y, computer)
+  for x in range(left, right + 1):
+    squares[(x, y)] = "#"
+    count += 1
+
+  if (right - left + 1) >= width:
+    foundx = look_back(left, y, squares, innerwidth)
+    if foundx is not None:
+      print "Part2: %d" % (foundx * 10000 + y - innerwidth)
+      squares[(foundx, y - innerwidth)] = "0"
+      squares[(foundx + innerwidth, y)] = "0"
+      for i in range(foundx, foundx + innerwidth):
+        squares[(i, y)] = "0"
+      break
+
+"""
+# Draw it
+for y in range(width, width * 20):
+  s = ""
+  for x in range(0, 100):
+    if (x, y) in squares:
+      s += squares[(x, y)]
+    else:
+      s += " "
+  print s
+"""
+print "Part1: Found %d affected points" % count
