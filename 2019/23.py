@@ -281,16 +281,13 @@ class NetworkController(object):
             self.nodes[0].set_inputs(self.nat)
             print "Sent", self.nat[1]
             i = 0
-# 13748 too high
         continue
       if dest == 255:
         self.nat = [x, y]
-        #print "255!", x, y
         continue
       i = 0
       out = self.nodes[dest]
       out.set_inputs([x, y])
-      #print "Delivering %d %d to %s" % (x, y, out.name)
     for node in self.nodes.values():
       node.join()
 
