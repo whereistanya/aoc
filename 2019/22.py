@@ -17,7 +17,7 @@ def incr(n, deck):
   return tmp
 
 def shuffle(lines, deck):
-  print "\n## Shuffling", len(deck)
+  #print "\n## Shuffling", len(deck)
   for line in lines:
     #print line
     line.strip()
@@ -32,7 +32,7 @@ def shuffle(lines, deck):
   return deck
 
 with open("input22.txt", "r") as f:
-  lines = f.readlines()
+  lines = [x.strip() for x in f.readlines()]
 
 ## Tests
 assert cut(3, [1,2,3,4,5,6]) == [4,5,6,1,2,3]
@@ -87,6 +87,8 @@ assert shuffle([
 
 
 ## Main
+
+# Part 1
 deck = []
 for i in range(0, 10007):
   deck.append(i)
@@ -95,6 +97,18 @@ deck = shuffle(lines, deck)
 #print deck[0:80]
 print deck.index(2019)
 
-# 6780 too high
-# 3226 too low
+# Part 2
+deck = []
+for i in range(0, 10007):
+  deck.append(i)
+
+seen = {}
+
+for i in range(0, 10000):
+  deck = shuffle(lines, deck)
+  if (deck[0], deck[1], deck[2]) in seen:
+    print i, seen[(deck[0], deck[1], deck[2])]
+  seen[(deck[0], deck[1], deck[2])] = i
+  #print i, deck[0:10]
+print deck[2020]
 
