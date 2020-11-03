@@ -1,8 +1,6 @@
 #!/usr/bin/env python
 # Advent of code Day 1.
 
-import math
-
 def add(digits, part):
   sum = 0
   l = len(digits)
