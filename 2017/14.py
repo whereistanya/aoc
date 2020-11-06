@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 # Advent of code Day 14
 
+import collections
 
 def run_hash(input10):
   n = 256
@@ -35,17 +36,49 @@ def run_hash(input10):
     i += 16
   return dense
 
-ones = 0
 inputstr = "jzgqcdpd"
 
+s = ""
+on = set()
 for i in range(128):
   out = run_hash("%s-%d" % (inputstr, i))
   binary = bin(int(out, 16))[2:]  # strip the "0b"
   binary = binary.zfill(128)
-  print "flqrgnkx-%d" % i, out, binary[0:8]
-  for c in binary:
+  #print "flqrgnkx-%d" % i, out, binary[0:8]
+  for j in range (len(binary)):
+    c = binary[j]
     if c == '1':
-      ones += 1
+      on.add((i, j))
+  #    s += "#"
+  #  else:
+  #    s += "."
+  #s += "\n"
 
-print "Part 1:", ones, "ones"
+print "Part 1:", len(on), "ones"
+
+#print s
+
+groups = 0
+
+while on:
+  startnode = on.pop()
+
+  to_check = collections.deque([startnode])
+  seen = set()
+  while to_check:
+    node = to_check.popleft()
+    seen.add(node)
+    x = node[0]
+    y = node[1]
+    neighbours = [(x+1, y), (x-1, y), (x, y+1), (x, y-1)]
+    for neighbour in neighbours:
+      if neighbour not in seen:
+        if neighbour in on:
+          to_check.append(neighbour)
+  groups += 1
+  for node in seen:
+    if node != startnode:
+      on.remove(node)
+
+print "Part 2", groups, "groups"
 
