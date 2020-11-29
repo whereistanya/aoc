@@ -61,13 +61,13 @@ def nodes_from(start):
 
 
 
-print "Part 1"
+print("Part 1")
 
 startnode = nodes["0"]
 seen = nodes_from(startnode)
-print len(seen)
+print(len(seen))
 
-print "Part 2"
+print("Part 2")
 all_nodes = set(nodes)
 
 for node in seen:
@@ -84,4 +84,4 @@ while all_nodes:
     if nodename != startnode: # hack because set doesn't have a peek() method
       all_nodes.remove(nodename)
 
-print groups
+print(groups)

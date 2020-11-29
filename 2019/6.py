@@ -7,10 +7,10 @@ def orbitcount(node, orbits, counts):
   if node in counts:
     return counts[node]
   if node not in orbits:
-    print "%s doesn't orbit anything" % node
+    print("%s doesn't orbit anything" % node)
     return 0
   counts[node] = orbitcount(orbits[node], orbits, counts) + 1
-  print "%s orbits %d things" % (node, counts[node])
+  print("%s orbits %d things" % (node, counts[node]))
   return counts[node]
 
 def get_path(node, orbits, path):
@@ -44,7 +44,7 @@ with open("input.txt", "r") as f:
   for line in lines:
     nodes = line.strip().split(")")
     orbits[nodes[1]] = nodes[0]
-    print("%s orbits %s" % (nodes[1], nodes[0]))
+    print(("%s orbits %s" % (nodes[1], nodes[0])))
 
   total = 0
   counts = {}
@@ -52,7 +52,7 @@ with open("input.txt", "r") as f:
     n = orbitcount(node, orbits, counts)
     total += n
 
-  print "Total orbits is %d" % total
+  print("Total orbits is %d" % total)
 
   patha = []
   pathb = []
@@ -61,18 +61,18 @@ with open("input.txt", "r") as f:
   nodesa = set(patha)
   nodesb = set(pathb)
 
-  print patha
+  print(patha)
   count = 0
   for node in patha:
     count += 1
     if node in nodesb:
-      print node
+      print(node)
       break
 
   for node in pathb:
     count += 1
     if node in nodesa:
-      print node
+      print(node)
       break
 
-  print count - 2
+  print(count - 2)

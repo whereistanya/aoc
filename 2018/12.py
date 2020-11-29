@@ -38,7 +38,7 @@ for line in lines:
   line.strip()
   groups = re.search(line_re, line).groups()
   if len(groups) != 2:
-    print "error in", line
+    print("error in", line)
     continue
   match, out = groups
   patterns[match] = out
@@ -108,4 +108,4 @@ plant = gen - 26
 for i in range(0, 26):
   total += 2 * plant + 1
   plant += 5
-print total
+print(total)

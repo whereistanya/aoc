@@ -52,7 +52,7 @@ for line in lines:
 
   if chemical_name in chemicals:
     if len(chemicals[chemical_name].needs) != 0:
-      print "More than one way to make %s" % chemical_name
+      print("More than one way to make %s" % chemical_name)
       sys.exit(1)
     chemical = chemicals[chemical_name]
   else:
@@ -72,16 +72,16 @@ for line in lines:
 
     chemical.needs.append((component, int(count)))
     component.needed_by.add(chemical.name)
-    print component.name, "->", chemical.name
+    print(component.name, "->", chemical.name)
     component.needed += int(count)
 
-print
+print()
 
-print "There are %d chemicals" % len(chemicals)
+print("There are %d chemicals" % len(chemicals))
 
-print
-print
-print
+print()
+print()
+print()
 
 unchecked = set()
 
@@ -106,13 +106,13 @@ def make_fuel(how_much=1):
       break
     chemical = chemicals[nodename]
     needed = what_we_need[nodename]
-    print "### Next node: %s (we need %d, this makes %d)" % (nodename,
-        needed, chemical.creates)
+    print("### Next node: %s (we need %d, this makes %d)" % (nodename,
+        needed, chemical.creates))
     batches = math.ceil(float(needed) / chemical.creates)
 
     for dep, count in chemical.needs:
-      print "To make %s, I need %d %ss" % (chemical.name, count, dep)
-      print "I know how to make %d %ss" % (dep.creates, dep.name)
+      print("To make %s, I need %d %ss" % (chemical.name, count, dep))
+      print("I know how to make %d %ss" % (dep.creates, dep.name))
       dep.needed_by.remove(nodename)
       if len(dep.needed_by) == 0:
         to_check.append(dep.name)
@@ -127,7 +127,7 @@ i = 1670299 # manual binary search. Slacker.
 ore = make_fuel(i)
 
 if ore > 1000000000000:
-  print "nope"
+  print("nope")
 else:
-  print "yep"
+  print("yep")
 

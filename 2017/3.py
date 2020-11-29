@@ -98,13 +98,13 @@ for y in range(-5, 5):
       s += " "
     else:
       s += ".. "
-  print s
+  print(s)
 
-print "Part 1"
-print squares[n]
-print squares[n].x + squares[n].y
+print("Part 1")
+print(squares[n])
+print(squares[n].x + squares[n].y)
 
-print "Part 2"
+print("Part 2")
 
 for y in range(-3, 3):
   s = ""
@@ -114,6 +114,6 @@ for y in range(-3, 3):
       s += " "
     else:
       s += ".. "
-  print s
+  print(s)
 
-print largest
+print(largest)

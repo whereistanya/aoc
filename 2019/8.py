@@ -40,7 +40,7 @@ while i < len(data):
   layers.append(layer)
   i += layersize
 
-print solution
+print(solution)
 
 pixels = []  # 150
 for i in range(0, layersize):
@@ -62,4 +62,4 @@ for i in range(0, len(pixels)):
     s += "#"
   else:
     s += " "
-print s
+print(s)

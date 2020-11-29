@@ -54,7 +54,7 @@ for i in range(128):
   #    s += "."
   #s += "\n"
 
-print "Part 1:", len(on), "ones"
+print("Part 1:", len(on), "ones")
 
 #print s
 
@@ -80,5 +80,5 @@ while on:
     if node != startnode:
       on.remove(node)
 
-print "Part 2", groups, "groups"
+print("Part 2", groups, "groups")
 

@@ -103,7 +103,7 @@ class Grid(object):
   def move(self):
     # Part 2: only one cart left.
     if len(self.current_locations) == 1:
-      print self.current_locations
+      print(self.current_locations)
       sys.exit(1)
     for cart in sorted(self.carts):
       if not cart.active:
@@ -130,10 +130,10 @@ class Grid(object):
         symbol = self.grid[y][x + 1]
         cart.x = x + 1
       else:
-        print "move shouldn't be", move
+        print("move shouldn't be", move)
 
-      if (cart.x, cart.y) in self.current_locations.keys():
-        print "crash at %d,%d" % (cart.x, cart.y)
+      if (cart.x, cart.y) in list(self.current_locations.keys()):
+        print("crash at %d,%d" % (cart.x, cart.y))
         other_cart = self.current_locations.pop((cart.x, cart.y))
 
         cart.active = False
@@ -176,7 +176,7 @@ lines = [
 """
 
 grid = Grid(lines)
-print sorted(grid.carts)
+print(sorted(grid.carts))
 
 while True:
 # Run until crash

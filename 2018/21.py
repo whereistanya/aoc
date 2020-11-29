@@ -175,7 +175,7 @@ def run_program(x, y, z):
 
   #print "eqrr:", x, y, z
   if z == reg0: # HALT
-    print "success"
+    print("success")
     sys.exit(0)
   else:
     x = 0
@@ -247,10 +247,10 @@ eqrrs = set()
 for i in range(0, 50000):
   x, y, z = run_program(x, y, z)
   if z in eqrrs:
-    print "loop on", z
+    print("loop on", z)
     sys.exit(0)
   else:
     # The last non-looped z is the answer.
-    print z
+    print(z)
   eqrrs.add(z)
 

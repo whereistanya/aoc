@@ -26,7 +26,7 @@ for line in lines:
       counts[letter] += 1
     except KeyError:
       counts[letter] = 1
-  for v in counts.values():
+  for v in list(counts.values()):
     if v == 2:
       twos.add(line)
     elif v == 3:
@@ -48,6 +48,6 @@ for line in lines:
   for i in range(0, len(word)):
     pattern = word[0:i] + "_" + word[i+1: len(word)]
     if pattern in patterns:
-      print "Match! %s and %s!" % (word, patterns[pattern])
-      print ("Letters in common are %s" % pattern.replace("_", ""))
+      print("Match! %s and %s!" % (word, patterns[pattern]))
+      print("Letters in common are %s" % pattern.replace("_", ""))
     patterns[pattern] = word

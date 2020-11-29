@@ -50,13 +50,13 @@ class Ground(object):
         elif letter == ".":
           coord.landscape = "."
         else:
-          print "Bad input", letter
+          print("Bad input", letter)
           sys.exit(1)
 
   def value(self):
     woods = 0
     lumberyards = 0
-    for coord in self.coords.values():
+    for coord in list(self.coords.values()):
       if coord.landscape == "#":
         lumberyards += 1
       elif coord.landscape == "|":
@@ -69,12 +69,12 @@ class Ground(object):
       for x in range (0, self.max_x):
         coord = self.coords[(x, y)]
         s += coord.landscape
-      print s
-    print
+      print(s)
+    print()
 
   def mutate(self):
     # First figure out what the next states should be.
-    for coord in self.coords.values():
+    for coord in list(self.coords.values()):
       counts = {}
       for x, y in coord.moves():
         if x < 0 or y < 0:
@@ -102,7 +102,7 @@ class Ground(object):
         else:
           coord.next_landscape = "."
     # Then make all the changes at once.
-    for coord in self.coords.values():
+    for coord in list(self.coords.values()):
       coord.landscape = coord.next_landscape
     return self.coords
 
@@ -139,7 +139,7 @@ while True:
   value = ground.value()
 
   if i in [n1, n2]:
-    print "Resource value for %d is %d" % (i, value)
+    print("Resource value for %d is %d" % (i, value))
 
   if i <= 428: # it takes 400 mutations for the pattern to settle
     continue

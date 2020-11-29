@@ -104,7 +104,7 @@ class UnitGroup(object):
     s = "%s Group %d: %dx%dhp=%d, %d %s damage, init %d\n" % (
         self.army, self.id, self.units, self.hp, self.effective_power, self.attack_power, self.damage_type, self.initiative)
     s +=  " Immunities: "
-    for k, v in self.resistance_levels.iteritems():
+    for k, v in self.resistance_levels.items():
       s += "%s(%s), " % (k, v)
     return s
 
@@ -126,7 +126,7 @@ class UnitGroup(object):
       return True
     if other.initiative > self.initiative:
       return False
-    print "The behaviour of groups with equal initiative is undefined."
+    print("The behaviour of groups with equal initiative is undefined.")
     sys.exit(1)
 
   def add_resistance_levels(self, immune_system):
@@ -136,7 +136,7 @@ class UnitGroup(object):
       try:
         groups = re.search(resistance_levels_re, immunity).groups()
       except AttributeError:
-        print "Couldn't match:", immunities
+        print("Couldn't match:", immunities)
         sys.exit(1)
       strength = groups[0]  # weak|immune
       damage_types = groups[1] # cold, radiation, etc
@@ -209,7 +209,7 @@ class Game(object):
       try:
         groups = re.search(line_re, line).groups()
       except AttributeError:
-        print "Couldn't match:", line
+        print("Couldn't match:", line)
         sys.exit(1)
       army.add(groups)
 
@@ -246,14 +246,14 @@ while not game.over():
   i += 1
   game.fight()
 
-print "Part 1: Over after %d rounds" % i
-print game.status()
+print("Part 1: Over after %d rounds" % i)
+print(game.status())
 
 ######################################
 # Part two
 ######################################
 
-print "Part 2:"
+print("Part 2:")
 
 def play(immune_boost):
   game = Game(immune_boost=immune_boost)
@@ -265,11 +265,11 @@ def play(immune_boost):
       break
     laststatus = status
   if game.immune_army.units() == 0:
-    print "%d: Infection army wins with %d" % (immune_boost, game.infection_army.units())
+    print("%d: Infection army wins with %d" % (immune_boost, game.infection_army.units()))
   elif game.infection_army.units() == 0:
-    print "%d: Immune army wins with %d" % (immune_boost, game.immune_army.units())
+    print("%d: Immune army wins with %d" % (immune_boost, game.immune_army.units()))
   else:
-    print "%d: Stalemate." % (immune_boost)
+    print("%d: Stalemate." % (immune_boost))
 
 # This could be a fancy binary search but the code is fast enough that it
 # doesn't matter.

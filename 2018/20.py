@@ -28,7 +28,7 @@ class Grid(object):
       return x + 1, y
     if direction == "W":
       return x - 1, y
-    print "Error: bad direction", direction
+    print("Error: bad direction", direction)
     return None, None
 
   def build_room(self, x, y):
@@ -89,7 +89,7 @@ class Grid(object):
         return consumed
 
   def draw(self):
-    print "x: %d to %d. y: %d to %d" % (self.min_x, self.max_x, self.min_y, self.max_y)
+    print("x: %d to %d. y: %d to %d" % (self.min_x, self.max_x, self.min_y, self.max_y))
     # Each room is drawn in two passes: north wall, east/west walls.
     # The south wall comes from the room below.
     for y in range(self.min_y, self.max_y + 1):
@@ -110,7 +110,7 @@ class Grid(object):
           else:
             s2 += "#."
         except KeyError:
-          print "No %d,%d" % (x, y)
+          print("No %d,%d" % (x, y))
           s1 += "??"
           s2 += "??"
       # Fencepost
@@ -124,8 +124,8 @@ class Grid(object):
           s2 += "#"
       except KeyError:
         s2 += "?"
-      print s1
-      print s2
+      print(s1)
+      print(s2)
     # Last line
     s3 = ""
     for x in range(self.min_x, self.max_x + 1):
@@ -138,11 +138,11 @@ class Grid(object):
       except KeyError:
         s3 += "??"
     s3 += "#"
-    print s3
+    print(s3)
 
   def bfs(self):
     initial = self.rooms[(0, 0)]
-    to_check = [x for x in initial.neighbours.values()]
+    to_check = [x for x in list(initial.neighbours.values())]
     checked = set()
     i = 0
     far_rooms = 0
@@ -154,7 +154,7 @@ class Grid(object):
         far_rooms += len(this_round)
       for room in this_round:
         checked.add(room)
-        for neighbour in room.neighbours.values():
+        for neighbour in list(room.neighbours.values()):
           if neighbour not in checked:
             to_check.append(neighbour)
     return i, far_rooms
@@ -172,4 +172,4 @@ grid = Grid()
 grid.walk(regex, None)
 #grid.draw()  # only for small ones!
 
-print grid.bfs()  # part1, part2
+print(grid.bfs())  # part1, part2

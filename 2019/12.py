@@ -89,10 +89,10 @@ while True:
     for moon in moons:
       potential = abs(moon.x) + abs(moon.y) + abs(moon.z)
       kinetic = abs(moon.dx) + abs(moon.dy) + abs(moon.dz)
-      print moon.name, potential, kinetic
+      print(moon.name, potential, kinetic)
       x = potential * kinetic
       energy += x
-    print "Part 1:", energy
+    print("Part 1:", energy)
 
 def gcd(a,b):
     while b > 0:
@@ -124,9 +124,9 @@ for moon in moons:
   yperiod = index(s2[0:1000], s2[1:]) +1 
   zperiod = index(s3[0:1000], s3[1:]) +1
 
-  print "==>", xperiod, yperiod, zperiod
+  print("==>", xperiod, yperiod, zperiod)
   lowest = lcm(xperiod, lcm(yperiod, zperiod))
   solution = lcm(solution, lowest)
 
-print "Part 2:", solution
+print("Part 2:", solution)
 

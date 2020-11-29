@@ -66,7 +66,7 @@ for i in range (0, 1000): # Arbitrary max
   for k in locations:
     if len(locations[k]) > 1:
       for p in locations[k]:
-        print "Alas, particle", p
+        print("Alas, particle", p)
         particles[p].alive = False
 
 smallest_p = -1
@@ -74,15 +74,15 @@ smallest_distance = 100000000000000
 
 for p in range (0, len(particles)):
   distance = particles[p].distance()
-  print "Particle", p, " has distance", particles[p].distance()
+  print("Particle", p, " has distance", particles[p].distance())
   if distance < smallest_distance:
     smallest_distance = distance
     smallest_p = p
 
-print "Smallest was", smallest_p
+print("Smallest was", smallest_p)
 
 alive = 0
 for particle in particles:
   if particle.alive:
     alive += 1
-print alive, "particles are still alive"
+print(alive, "particles are still alive")

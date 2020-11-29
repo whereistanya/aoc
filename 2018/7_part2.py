@@ -26,7 +26,7 @@ depends = {}
 for line in lines:
   letters = re.search(line_re, line).groups()
   if len(letters) != 2:
-    print "Bad input"
+    print("Bad input")
     sys.exit(1)
   depender = letters[1]
   dependee = letters[0]
@@ -70,7 +70,7 @@ while True:
 
     # find what's available now
     available = []
-    for k, values in depends.iteritems():
+    for k, values in depends.items():
       if not values:
         available.append(k)
         continue
@@ -99,5 +99,5 @@ while True:
       break
   seconds += 1
 
-print ordered, len(ordered)
-print "It took %d seconds" % seconds
+print(ordered, len(ordered))
+print("It took %d seconds" % seconds)

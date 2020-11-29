@@ -38,7 +38,8 @@ def walk(moves):
       longest = distance
   return (x, y), longest
 
-def find((ex, ey)):
+def find(xxx_todo_changeme):
+  (ex, ey) = xxx_todo_changeme
   sx, sy = 0, 0
 
   steps = 0
@@ -66,7 +67,7 @@ def find((ex, ey)):
       elif sx < ex and sy < ey:
         sx += 1; sy += 0.5  # go southeast
       else:
-        print "we have a bug?"
+        print("we have a bug?")
         exit()
     steps += 1
   return steps
@@ -80,5 +81,5 @@ assert find(walk(["ne","ne", "ne"])[0]) == 3
 
 coord, distance = walk(moves)
 
-print "Part 1:", find(coord)
-print "Part 2:", distance
+print("Part 1:", find(coord))
+print("Part 2:", distance)

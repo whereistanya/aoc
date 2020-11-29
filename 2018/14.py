@@ -60,16 +60,16 @@ to_find = [7, 0, 2, 8, 3, 1]
 
 l = len(to_find)
 
-print to_find
-print scores
+print(to_find)
+print(scores)
 while True:
   added = combine(e1, e2, scores)
   advance(e1, e2, scores)
   if added > 1:
     for i in range (1, added):
       if to_find == scores[-l -i: -i]:
-        print len(scores) - (l + i)
+        print(len(scores) - (l + i))
         sys.exit(0)
   if to_find == scores[-l:]:
-    print len(scores) - l
+    print(len(scores) - l)
     sys.exit(0)

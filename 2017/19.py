@@ -26,7 +26,7 @@ class Grid(object):
     line = self.grid[(x, y)]
   # is there a letter here?
     if ord(line) in range(65, 92): # it's a letter
-      print line
+      print(line)
       self.letters.append(line)
 
 
@@ -34,13 +34,13 @@ class Grid(object):
     if line == "+": # direction change
       # if we were going up or down, we're looking at the x value
       if self.direction in ["up", "down"]:
-        if (x - 1, y) in self.grid.keys() and self.grid[(x - 1, y)] != " ":
+        if (x - 1, y) in list(self.grid.keys()) and self.grid[(x - 1, y)] != " ":
           self.direction = "left"
         else:
           self.direction = "right"
       # if we were going left or right, we're looking at the y value
       else:
-        if (x, y - 1) in self.grid.keys() and self.grid[(x, y - 1)] != " ":
+        if (x, y - 1) in list(self.grid.keys()) and self.grid[(x, y - 1)] != " ":
           self.direction = "up"
         else:
           self.direction = "down"
@@ -49,14 +49,14 @@ class Grid(object):
   def get_start(self):
     starting_point = None
     for x in range(0, width + 1):
-      if (x, 0) in self.grid.keys() and self.grid[(x, 0)] == "|":
-        print "Found starting point"
+      if (x, 0) in list(self.grid.keys()) and self.grid[(x, 0)] == "|":
+        print("Found starting point")
         if starting_point is not None:
-          print "Error: Found multiple starting points"
+          print("Error: Found multiple starting points")
           exit()
         starting_point = (x, 0)
     if starting_point == None:
-      print "didn't find a starting point"
+      print("didn't find a starting point")
     self.current = starting_point
 
   def display(self):
@@ -70,7 +70,7 @@ class Grid(object):
           s += self.grid[(x, y)]
         except KeyError:
           s += " "
-      print s
+      print(s)
 
 with open("input19.txt", "r") as f:
   lines = f.readlines()
@@ -103,7 +103,7 @@ while True:
   try:
     grid.move()
   except KeyError:
-    print "After", grid.moves, "moves, the letters were", "".join(grid.letters)
+    print("After", grid.moves, "moves, the letters were", "".join(grid.letters))
     break
 
 

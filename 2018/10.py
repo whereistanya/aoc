@@ -108,8 +108,8 @@ while True:
         else:
           s += "."
     os.system('clear')
-    print "After %d seconds..." % seconds # 10887 is too high.
-    print s
+    print("After %d seconds..." % seconds) # 10887 is too high.
+    print(s)
     break
 
 

@@ -101,22 +101,22 @@ for line in lines:
     guard.add_sleep(int(beginning), int(minute))
     beginning = -1
   else:
-    print "Weird log: %s" % log
+    print("Weird log: %s" % log)
     sys.exit(1)
 
 sleepiest = -1
 minutes_asleep = -1
 for k in guards:
   guard = guards[k]
-  print guard
+  print(guard)
   if guard.minutes_count > minutes_asleep:
     minutes_asleep = guard.minutes_count
     sleepiest = guard.id
 
 (sleepiest_minute, count) = guards[sleepiest].sleepiest_minute()
-print "Sleepiest is %s with %d x %d = %d" % (
+print("Sleepiest is %s with %d x %d = %d" % (
   sleepiest, minutes_asleep, int(sleepiest_minute),
-  int(sleepiest) * int(sleepiest_minute))
+  int(sleepiest) * int(sleepiest_minute)))
 
 #######################################################
 # Part two
@@ -134,4 +134,4 @@ for guard_id in guards:
     global_sleepiest_minute = sleepiest_minute
     global_sleepiest_guard = guard.id
 
-print int(global_sleepiest_guard) * int (global_sleepiest_minute)
+print(int(global_sleepiest_guard) * int (global_sleepiest_minute))

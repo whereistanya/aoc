@@ -14,7 +14,7 @@ class Computer(Thread):
   def __init__(self, name):
     super(Computer, self).__init__()
     self.name = name
-    print "Starting Computer", self.name
+    print("Starting Computer", self.name)
     self.inputs = collections.deque([])
     self.stop_event = Event()
     self.program = {}
@@ -35,7 +35,7 @@ class Computer(Thread):
     }
 
   def halt(self):
-    print self.name, ": halt called!"
+    print(self.name, ": halt called!")
     self.stop_event.set()
 
   def reset(self):
@@ -82,7 +82,7 @@ class Computer(Thread):
         value = self.program[position + self.relative_base]
         return value
       else:
-        print "OMG UNKNOWN MODE"
+        print("OMG UNKNOWN MODE")
         return None
     except KeyError:
       return 0
@@ -185,7 +185,7 @@ class Computer(Thread):
 
   def run(self):
     """Expects program as a comma separated string of integers"""
-    print "Running for", len(self.program), "values."
+    print("Running for", len(self.program), "values.")
     index = 0
 
     while True:
@@ -195,7 +195,7 @@ class Computer(Thread):
       if self.stop_event.is_set():
         break
       if opcode == 99:
-        print "### Got 99 instruction. HALTING ###"
+        print("### Got 99 instruction. HALTING ###")
         self.output_computer.halt()
         break
       opfunc = self.opcodes[opcode]
@@ -255,13 +255,13 @@ class Robot(Thread):
     return self.inputs.popleft()
 
   def halt(self):
-    print self.name, ": halt called!"
+    print(self.name, ": halt called!")
     self.stop_event.set()
     self.halted = True
 
   def display(self, robotx, roboty):
     #os.system('clear')
-    print "---------------------------------------------------------------------------------"
+    print("---------------------------------------------------------------------------------")
     for y in range (0, 50):
       s = ""
       for x in range(0, 72):
@@ -272,7 +272,7 @@ class Robot(Thread):
           s += (self.squares[(x, y)])
         except KeyError:
           s += " "
-      print s
+      print(s)
 
   def unseen_neighbours(self, x, y, seen):
     # north (1), south (2), west (3), and east (4)
@@ -314,7 +314,7 @@ class Robot(Thread):
         seen.add((x, y))
         self.squares[x, y] = ","
         if x == stop_x and y == stop_y:
-          print "FOUND IT in %d steps" % steps
+          print("FOUND IT in %d steps" % steps)
           return
         for neighbour in self.neighbours(x, y):
           nx, ny = neighbour
@@ -323,7 +323,7 @@ class Robot(Thread):
           if self.squares[(nx, ny)] == "#":
             continue
           to_check.append((nx, ny))
-    print "Saw the whole map in %d steps" % steps
+    print("Saw the whole map in %d steps" % steps)
 
 
 
@@ -356,7 +356,7 @@ class Robot(Thread):
         # otherwise it's a valid direction
         found = True
         if result == 2:
-          print "WIN. Found it at %d, %d" % (x, y)
+          print("WIN. Found it at %d, %d" % (x, y))
           self.squares[(nx, ny)] = "S"
           self.system = (nx, ny)
           self.display(nx, ny)
@@ -371,14 +371,14 @@ class Robot(Thread):
         stack.pop()
         if not direction_back:
           # We're back.
-          print "FINISHED!"
+          print("FINISHED!")
           break
         self.output_computer.set_inputs([direction_back])
         result = self.next_input()
         if result != 1:
-          print "Unexpected result backtracking from %d,%d: %d" % (x, y, result)
+          print("Unexpected result backtracking from %d,%d: %d" % (x, y, result))
           sys.exit(1)
-    print "Finished mapping the world, hurray!"
+    print("Finished mapping the world, hurray!")
     self.output_computer.halt()
     self.display(0, 0)
     # Now BFS the map we drew

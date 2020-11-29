@@ -145,8 +145,8 @@ def generate_magic_constants(lines, m):
     # "something x + something" function.
     finala = finala * a % m
     finalb = finalb * a + b % m
-  print "The Linear Congruential Function for this shuffle is"
-  print "%dx + %d mod %d" % (finala, finalb, m)
+  print("The Linear Congruential Function for this shuffle is")
+  print("%dx + %d mod %d" % (finala, finalb, m))
   return finala, finalb
 
 def power_mod(x, n, m):
@@ -214,7 +214,7 @@ how_many_shuffles = 1
 # described at https://codeforces.com/blog/entry/72593. If we plug these into
 # `ax + b mod m`, we get the new position of x.
 a, b = generate_magic_constants(lines, len_deck)
-print "Part 1 a,b are", a, b
+print("Part 1 a,b are", a, b)
 
 # Create a deck
 deck = []
@@ -229,7 +229,7 @@ for x in range(len_deck):
   y = x_after_k_shuffles(x, a, b, how_many_shuffles, len_deck)
   tmp[y] = deck[x]
 deck = tmp
-print "Part 1: 2019 is at index", deck.index(2019)
+print("Part 1: 2019 is at index", deck.index(2019))
 
 ######### Part 2 #########
 
@@ -238,7 +238,7 @@ how_many_shuffles = 101741582076661
 
 # Find the magic constants for this bigger deck.
 a, b = generate_magic_constants(lines, len_deck)
-print "Part 2 a,b are", a, b
+print("Part 2 a,b are", a, b)
 
 # We're not making a deck this time. Too big! Instead, we want to just find out
 # what will be in that one position, 2020.
@@ -258,7 +258,7 @@ inverted_b = -b * inverted_a
 card_position = 2020
 
 y = x_after_k_shuffles(2020, inverted_a, inverted_b, how_many_shuffles, len_deck)
-print "Part 2: the card at position 2020 will come from position", y
+print("Part 2: the card at position 2020 will come from position", y)
 
 """
 ## Tests

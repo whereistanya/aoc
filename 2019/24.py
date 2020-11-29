@@ -16,7 +16,7 @@ class Eris(object):
         level in self.squares and
         x in self.squares[level] and
         self.squares[level][x]):
-          print "Unexpected bug in level %d square 12" % (level)
+          print("Unexpected bug in level %d square 12" % (level))
           raise ValueError
 
     try:
@@ -73,7 +73,7 @@ class Eris(object):
 
   def display(self, level = 0):
     s = ""
-    print "=== LEVEL %d ===" % level
+    print("=== LEVEL %d ===" % level)
     for i in range(25):
       if self.get(level, i):
         s += "#"
@@ -84,7 +84,7 @@ class Eris(object):
       if i % 5 == 4:
         s += "\n"
     #os.system('clear')
-    print s
+    print(s)
 
   def set(self, lines):
     # Initially, only level zero contains bugs.
@@ -114,7 +114,7 @@ class Eris(object):
       self.squares[0] = state
       #print tile, biodiversity
       if biodiversity in self.seen:
-        print layout, biodiversity
+        print(layout, biodiversity)
         break
       self.seen.add(biodiversity)
       # Uncomment to visualise.
@@ -125,7 +125,7 @@ class Eris(object):
   def run_part2(self):
     states = {}
     minutes = 200
-    print "######## LAYOUT 0 ########"
+    print("######## LAYOUT 0 ########")
     self.display(0)
     for layout in range(1, minutes + 1):
       bugcount = 0
@@ -143,7 +143,7 @@ class Eris(object):
       for state in states:
         self.squares[state] = states[state]
 
-    print "######## LAYOUT %d ########" % layout
+    print("######## LAYOUT %d ########" % layout)
     self.display(-5)
     self.display(-4)
     self.display(-3)
@@ -155,7 +155,7 @@ class Eris(object):
     self.display(4)
     self.display(5)
     self.display(110) # Check we haven't underestimated how many levels we need
-    print bugcount
+    print(bugcount)
     # Uncomment to visualise.
     #time.sleep(0.5)
 

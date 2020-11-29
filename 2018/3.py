@@ -61,11 +61,11 @@ for line in lines:
       overlaps.add(inch)
     covered.add(inch)
 
-print "%d inches are within two or more claims." % len(overlaps)
+print("%d inches are within two or more claims." % len(overlaps))
 
 # Only one claim fits in covered - overlaps
 non_overlapping = covered - overlaps
 
 for claim in claims:
   if claim.inches.issubset(non_overlapping):
-    print claim
+    print(claim)

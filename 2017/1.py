@@ -23,7 +23,7 @@ assert add([1,2,1,3,1,4,1,5], 2) == 4
 
 with open("input1.txt", "r") as f:
   digits = list(f.read().strip())
-  print add(digits, 1)
-  print add(digits, 2)
+  print(add(digits, 1))
+  print(add(digits, 2))
 
 

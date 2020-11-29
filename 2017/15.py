@@ -36,7 +36,7 @@ for i in range(5000000):
   a = gena.calculate()
   b = genb.calculate()
   if a == b:
-    print matches, a
+    print(matches, a)
     matches += 1
 
 matches, "matches"

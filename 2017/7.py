@@ -86,14 +86,14 @@ root_node = None
 for node_name in nodes:
   node = nodes[node_name]
   if not node.below:
-    print "Part 1:",  node
+    print("Part 1:",  node)
     root_node = node
 
 #assert nodes["ugml"].total_weight() == 251
 #assert nodes["padx"].total_weight() == 243
 #assert nodes["fwft"].total_weight() == 243
 
-print "Part 2:"
+print("Part 2:")
 to_check = collections.deque()
 to_check.append(root_node)
 
@@ -109,7 +109,7 @@ while to_check:
     for above in node.above:
       to_check.append(above)
 
-print last_uneven
+print(last_uneven)
 weights = {}
 for above in last_uneven.above:
   #print " => ", above.name, above.total_weight(), above.weight
@@ -118,7 +118,7 @@ for above in last_uneven.above:
     weights[above.total_weight()].append(above.name)
   else:
     weights[above.total_weight()] = [above.name]
-print weights
+print(weights)
 
-print "Adjust the actual (not aggregate) weight of whichever one is different"
-print "I have to go eat indian food now but maybe I'll write this some time"
+print("Adjust the actual (not aggregate) weight of whichever one is different")
+print("I have to go eat indian food now but maybe I'll write this some time")

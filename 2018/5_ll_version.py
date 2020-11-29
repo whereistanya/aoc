@@ -73,7 +73,7 @@ class DoublyLinkedList(object):
     while node != None:
       s += node.value
       node = node.next_node
-    print s
+    print(s)
 
 DISTANCE = 32  # Distance between A' and 'a' in ascii table.
 
@@ -84,7 +84,7 @@ for char in line:
 head = ll.head # first node
 changes = False
 node = head
-print "Count is %d" % ll.count
+print("Count is %d" % ll.count)
 
 while True:
   if node is None or node.next_node is None: # last node
@@ -103,4 +103,4 @@ while True:
   node = node.next_node
 
 
-print "list is now", ll.count
+print("list is now", ll.count)

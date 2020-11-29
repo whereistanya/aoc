@@ -65,5 +65,5 @@ for line in lines:
       highest_register_ever = registers[reg1]
 
 
-print "Part 1", sorted(registers.values())[len(registers) - 1]
-print "Part 2", highest_register_ever
+print("Part 1", sorted(registers.values())[len(registers) - 1])
+print("Part 2", highest_register_ever)

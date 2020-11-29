@@ -32,5 +32,5 @@ for i in string.ascii_lowercase:
   if count < shortest:
     shortest = count
     should_remove = i
-  print i, react(removed)
-print "Should remove %s, %d" % (should_remove, shortest)
+  print(i, react(removed))
+print("Should remove %s, %d" % (should_remove, shortest))

@@ -53,7 +53,7 @@ with open("input.txt", "r") as f:
 #"##...##.#####..##", "##...#...#.#####.",
 #"..#.....#...###..", "..#.#.....#....##"]
 
-print "Read %d lines of length %d" % (len(lines), len(lines[0]))
+print("Read %d lines of length %d" % (len(lines), len(lines[0])))
 asteroids = {}
 
 height = len(lines)
@@ -67,11 +67,11 @@ for y in range (0, height):
     if line[x] == "#":
       asteroid = Asteroid(x, y)
       asteroids[asteroid.name] = asteroid
-  print s
+  print(s)
 
-print "Found %d asteroids" % len(asteroids)
+print("Found %d asteroids" % len(asteroids))
 
-for station in asteroids.values():
+for station in list(asteroids.values()):
   # get everything in thr same horizontal line
   blocked = False
   for i in range (station.x -1, -1, -1):
@@ -133,7 +133,7 @@ for station in asteroids.values():
   # Now diagonals
   count = len(asteroids)
   slopes = {}
-  for node in asteroids.values():
+  for node in list(asteroids.values()):
     if node in station.no:
       continue
     if node in station.yes:
@@ -152,16 +152,16 @@ for station in asteroids.values():
         station.no.add(node)
     else:
       slopes[slope] = node
-  for node in slopes.values():
+  for node in list(slopes.values()):
     station.yes.add(node)
 
 highest = 0
 chosen = None
-for station in asteroids.values():
+for station in list(asteroids.values()):
   if len(station.yes) > highest:
     highest = len(station.yes)
     chosen = station
-print highest, chosen
+print(highest, chosen)
 
 # Part 2
 station = asteroids["19_14"]
@@ -170,10 +170,10 @@ slopes = {}  # slope, [nodes]
 
 del asteroids[station.name]
 
-nodes = asteroids.values()
+nodes = list(asteroids.values())
 for node in nodes:
   if node == station:
-    print "nope"
+    print("nope")
     sys.exit(0)
 
   rise = (station.y - node.y) * 1.0
@@ -207,6 +207,6 @@ while len(asteroids) > 0:
     last_slope = node.slope
     last_direction = node.direction
     count += 1
-    print count, node
+    print(count, node)
     del asteroids[node.name]
 

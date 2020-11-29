@@ -30,9 +30,9 @@ def remove_garbage(chars):
   return newst, garbage_count
 
 def score(chars):
-  print chars
+  print(chars)
   chars = remove_garbage(chars)[0]
-  print chars
+  print(chars)
   score = 0
   depth = 0
   for char in chars:
@@ -42,7 +42,7 @@ def score(chars):
       score += depth
       depth -= 1
     if depth < 0:
-      print "Uh, UNEXPECTED"
+      print("Uh, UNEXPECTED")
       exit()
   return score
 
@@ -73,8 +73,8 @@ assert score("{{<ab>},{<ab>},{<ab>},{<ab>}}") == 9
 assert score("{{<!!>},{<!!>},{<!!>},{<!!>}}") == 9
 assert score("{{<a!>},{<a!>},{<a!>},{<ab>}}") == 3
 
-print score(chars)
+print(score(chars))
 
-print remove_garbage(chars)[1]
+print(remove_garbage(chars)[1])
 
 

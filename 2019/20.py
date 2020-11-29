@@ -105,7 +105,7 @@ class Grid(object):
           except KeyError:
             s += " "
       s += "\n"
-    print s
+    print(s)
 
   def bfs(self, start):
     # starting level is zero. Level inside it is one. Zero is outside layer.
@@ -121,7 +121,7 @@ class Grid(object):
         x, y, level = this_step[i]
         self.checked.add((x, y, level))
         if x == self.end[0] and y == self.end[1] and level == 1:
-          print "Found the end in %d steps" % steps
+          print("Found the end in %d steps" % steps)
           sys.exit(0)
         for neighbour in self.neighbours(x, y):
           x1, y1, _, _ = neighbour
@@ -146,6 +146,6 @@ with open("input20.txt") as f:
 grid = Grid()
 grid.populate(lines)
 grid.display(1)
-print grid.start
-print grid.end
+print(grid.start)
+print(grid.end)
 grid.bfs(grid.start)

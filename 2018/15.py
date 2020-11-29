@@ -100,7 +100,7 @@ class Dungeon(object):
         continue
         self.rescan()
       if not self.enemy_count(creature):
-        print "No more enemies for", creature.symbol, "to fight"
+        print("No more enemies for", creature.symbol, "to fight")
         return False
       enemy = self.enemy_in_range(creature, lowest_hp=True)
       if enemy:
@@ -133,7 +133,7 @@ class Dungeon(object):
 
   def enemy_count(self, creature):
     count = 0
-    for found in self.creatures.values():
+    for found in list(self.creatures.values()):
       if found.alive and found.symbol != creature.symbol:
         count += 1
     return count
@@ -166,7 +166,7 @@ class Dungeon(object):
   def rescan(self):
     new_creature_map = {}
     new_ranges_map = {}
-    for creature in self.creatures.values():
+    for creature in list(self.creatures.values()):
       if not creature.alive:
         continue
       new_creature_map[(creature.x, creature.y)] = creature
@@ -198,7 +198,7 @@ class Dungeon(object):
           except KeyError:
             s += "."
 
-      print s, suffix
+      print(s, suffix)
 
 class Creature(object):
   def __init__(self, x, y, symbol, crash_on_death=False):
@@ -237,7 +237,7 @@ class Creature(object):
     if self.hitpoints < 0:
       self.alive = False
       if self.symbol == "E" and self.crash_on_death:
-        print "UNACCEPTABLE DEATH OF", self.symbol
+        print("UNACCEPTABLE DEATH OF", self.symbol)
         sys.exit(0)
 
 def run(lines, draw_all = False, elf_attack_power=3, elf_saving=False):
@@ -247,18 +247,18 @@ def run(lines, draw_all = False, elf_attack_power=3, elf_saving=False):
   i = 0
   while game.play_a_round():
     if draw_all:
-      print "***** round %d *****" % i
+      print("***** round %d *****" % i)
       game.draw()
     i += 1
 
   hp = 0
-  for creature in game.creatures.values():
+  for creature in list(game.creatures.values()):
     if creature.alive:
       hp += creature.hitpoints
 
-  print i
-  print hp
-  print i * hp
+  print(i)
+  print(hp)
+  print(i * hp)
   return i * hp
 
 # Tests

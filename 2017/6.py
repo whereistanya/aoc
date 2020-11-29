@@ -18,7 +18,7 @@ with open("input6.txt", "r") as f:
   while True:
     svalues = ",".join(values)
     if svalues == marker:
-      print ("Cycling again after %d cycles" % cycle_counter)
+      print("Cycling again after %d cycles" % cycle_counter)
       break
     if svalues in seen:
       if marker == "":
@@ -45,4 +45,4 @@ with open("input6.txt", "r") as f:
       redistribute -= 1
     steps += 1
 
-print ("Completed after %d steps" % steps)
+print("Completed after %d steps" % steps)

@@ -35,7 +35,7 @@ class Computer(Thread):
     }
 
   def halt(self):
-    print self.name, ": halt called!"
+    print(self.name, ": halt called!")
     self.stop_event.set()
 
   def reset(self):
@@ -82,7 +82,7 @@ class Computer(Thread):
         value = self.program[position + self.relative_base]
         return value
       else:
-        print "OMG UNKNOWN MODE"
+        print("OMG UNKNOWN MODE")
         return None
     except KeyError:
       return 0
@@ -244,7 +244,7 @@ def test(x, y, computer):
     return True
   if out == 0:
     return False
-  print "Unexpected return from computer: %d" % out
+  print("Unexpected return from computer: %d" % out)
   raise ValueError
 
 def find_leftmost_x(x, y, computer):
@@ -309,7 +309,7 @@ for y in range(width, width * 20):
   if (right - left + 1) >= width:
     foundx = look_back(left, y, squares, innerwidth)
     if foundx is not None:
-      print "Part2: %d" % (foundx * 10000 + y - innerwidth)
+      print("Part2: %d" % (foundx * 10000 + y - innerwidth))
       squares[(foundx, y - innerwidth)] = "0"
       squares[(foundx + innerwidth, y)] = "0"
       for i in range(foundx, foundx + innerwidth):
@@ -327,4 +327,4 @@ for y in range(width, width * 20):
       s += " "
   print s
 """
-print "Part1: Found %d affected points" % count
+print("Part1: Found %d affected points" % count)

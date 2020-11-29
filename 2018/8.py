@@ -90,6 +90,6 @@ while True:
   # So this node has some children. It becomes the parent, until we find them.
   parent = node
 
-print "Part one:", metadata_sum
-print "Part two:", root.children[0].value()
+print("Part one:", metadata_sum)
+print("Part two:", root.children[0].value())
 # not 0

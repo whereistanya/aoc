@@ -14,7 +14,7 @@ class Computer(Thread):
   def __init__(self, name):
     super(Computer, self).__init__()
     self.name = name
-    print "Starting Computer", self.name
+    print("Starting Computer", self.name)
     self.inputs = collections.deque([])
     self.stop_event = Event()
     self.program = {}
@@ -35,7 +35,7 @@ class Computer(Thread):
     }
 
   def halt(self):
-    print self.name, ": halt called!"
+    print(self.name, ": halt called!")
     self.stop_event.set()
 
   def reset(self):
@@ -53,7 +53,7 @@ class Computer(Thread):
     self.inputs.clear()
 
   def set_inputs(self, inputs):
-    print "INPUT!", inputs
+    print("INPUT!", inputs)
     for n in inputs:
       self.inputs.append(n)
 
@@ -82,7 +82,7 @@ class Computer(Thread):
         value = self.program[position + self.relative_base]
         return value
       else:
-        print "OMG UNKNOWN MODE"
+        print("OMG UNKNOWN MODE")
         return None
     except KeyError:
       return 0
@@ -186,7 +186,7 @@ class Computer(Thread):
 
   def run(self):
     """Expects program as a comma separated string of integers"""
-    print "Running for", len(self.program), "values."
+    print("Running for", len(self.program), "values.")
     index = 0
 
     while True:
@@ -196,7 +196,7 @@ class Computer(Thread):
       if self.stop_event.is_set():
         break
       if opcode == 99:
-        print "### Got 99 instruction. HALTING ###"
+        print("### Got 99 instruction. HALTING ###")
         self.output_computer.halt()
         break
       opfunc = self.opcodes[opcode]
@@ -315,12 +315,12 @@ class Robot(Thread):
   def run(self):
     while not self.stop_event.set():
       s, halt = self.parse_input()
-      print s
+      print(s)
       if halt:
         sys.exit(1)
       if s.startswith("Input"):
         self.send_input()
-        print "All input sent."
+        print("All input sent.")
 
 computer = Computer("COMPUTER")
 computer.reset()

@@ -22,16 +22,16 @@ while i < 50000000:
   length += 1
 
   if position == 1:
-    print "Inserting", i, "at position one"
+    print("Inserting", i, "at position one")
     circular_buffer.insert(position, i)
   if circular_buffer[0] != 0:
-    print "Value", circular_buffer[0], "for start"
+    print("Value", circular_buffer[0], "for start")
     exit()
   if circular_buffer[1] not in posone:
-    print circular_buffer[1]
+    print(circular_buffer[1])
     posone.add(circular_buffer[1])
   i += 1
 
-print circular_buffer[position]
+print(circular_buffer[position])
 #print circular_buffer[position + 1]
-print sorted(posone)
+print(sorted(posone))

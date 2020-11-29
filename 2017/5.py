@@ -22,4 +22,4 @@ with open("input5.txt", "r") as f:
     lines[i] += offset
     i += instruction
 
-print steps
+print(steps)

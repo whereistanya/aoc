@@ -17,5 +17,5 @@ with open("input2.txt", "r") as f:
         if values[test] % values[i] == 0:
           checksum2 += values[test] / values[i]
           break
-  print checksum1
-  print checksum2
+  print(checksum1)
+  print(checksum2)

@@ -67,8 +67,8 @@ class Ground(object):
           s += "|"
         else:
           s += "."
-      print s
-    print "===============\n"
+      print(s)
+    print("===============\n")
 
 
   def occupied(self, coord):
@@ -185,7 +185,7 @@ while starting_points:
 
 ground.draw()
 
-print "At rest", len(ground.water)
-print "In motion", len(ground.falling_water)
-print "Water", len(ground.water.union(ground.falling_water))
+print("At rest", len(ground.water))
+print("In motion", len(ground.falling_water))
+print("Water", len(ground.water.union(ground.falling_water)))
 

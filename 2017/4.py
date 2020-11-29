@@ -18,7 +18,7 @@ for line in lines:
   if valid:
     count += 1
 
-print count
+print(count)
 
 # Part 2
 count = 0
@@ -36,4 +36,4 @@ for line in lines:
     count += 1
 
 
-print count
+print(count)

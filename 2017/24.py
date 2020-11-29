@@ -97,7 +97,7 @@ class Node(object):
     elif end == self.end2:
       return self.end1
     else:
-      print "Unexpected end %s for node %s/%s" % (end, self.end1, self.end2)
+      print("Unexpected end %s for node %s/%s" % (end, self.end1, self.end2))
       exit()
 
   def __repr__(self):
@@ -121,6 +121,6 @@ graph = Graph()
 graph.parse(lines)
 
 best = graph.find_best_path([], "0")
-print "Path:", best.path
-print "Weight", best.weight
-print "Length", best.length
+print("Path:", best.path)
+print("Weight", best.weight)
+print("Length", best.length)

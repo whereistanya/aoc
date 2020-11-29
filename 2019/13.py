@@ -15,7 +15,7 @@ class Computer(Thread):
     # Initialise thread.
     super(Computer, self).__init__()
     self.name = name
-    print "Starting Computer", self.name
+    print("Starting Computer", self.name)
     self.inputs = collections.deque([])
     self.stop_event = Event()
     self.program = {}
@@ -36,7 +36,7 @@ class Computer(Thread):
     }
 
   def halt(self):
-    print self.name, ": halt called!"
+    print(self.name, ": halt called!")
     self.stop_event.set()
 
   def reset(self):
@@ -83,7 +83,7 @@ class Computer(Thread):
         value = self.program[position + self.relative_base]
         return value
       else:
-        print "OMG UNKNOWN MODE"
+        print("OMG UNKNOWN MODE")
         return None
     except KeyError:
       return 0
@@ -186,7 +186,7 @@ class Computer(Thread):
 
   def run(self):
     """Expects program as a comma separated string of integers"""
-    print "Running for", len(self.program), "values."
+    print("Running for", len(self.program), "values.")
     index = 0
 
     while True:
@@ -196,7 +196,7 @@ class Computer(Thread):
       if self.stop_event.is_set():
         break
       if opcode == 99:
-        print "### Got 99 instruction. HALTING ###"
+        print("### Got 99 instruction. HALTING ###")
         self.output_computer.halt()
         break
       opfunc = self.opcodes[opcode]
@@ -313,7 +313,7 @@ print "\nTests passed\n"
 """
 
 
-print "\nRunning!"
+print("\nRunning!")
 
 with open("input13.txt") as f:
   program = [int(x) for x in f.read().split(",")]
@@ -352,7 +352,7 @@ class Arcade(Thread):
     return returns
 
   def halt(self):
-    print self.name, ": halt called!"
+    print(self.name, ": halt called!")
     self.stop_event.set()
     self.halted = True
 
@@ -380,7 +380,7 @@ class Arcade(Thread):
 
   def count_blocks(self):
     count = 0
-    for v in self.squares.values():
+    for v in list(self.squares.values()):
       if v == "@":
         count += 1
     return count
@@ -389,7 +389,7 @@ class Arcade(Thread):
     if self.ball_last_y == self.ball_y:
       # nothing's happened since we were here last
       # This is unexpected behaviour.
-      print "Ball hasn't moved. Returning"
+      print("Ball hasn't moved. Returning")
       self.ball_last_y = self.ball_y
       self.ball_last_x = self.ball_x
       return
@@ -440,7 +440,7 @@ class Arcade(Thread):
         continue
       if x == -1 and y == 0:
         self.score = tile
-        print "SCOOOOORE!", self.score
+        print("SCOOOOORE!", self.score)
         continue
       if tile == 4:
         self.ball_x = x
@@ -451,7 +451,7 @@ class Arcade(Thread):
         self.paddle = x
         #print "==> Paddle now at (%d, %d)" % (self.paddle, y)
       self.squares[(x, y)] = self.tiles(tile)
-    print "There were %d blocks" % robot.count_blocks()
+    print("There were %d blocks" % robot.count_blocks())
 
 
 computer = Computer("COMPUTER")

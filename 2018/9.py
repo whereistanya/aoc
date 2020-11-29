@@ -32,4 +32,4 @@ for i in range (2, last_marble + 1):
     marbles.insert(pos, i)
     current = pos
 
-print sorted(scores.values())[-1]
+print(sorted(scores.values())[-1])

@@ -11,8 +11,8 @@ for i in range(0, 10000):
 to_skip = int(s[0:7])
 
 assert len(b) * 10000 == len(s)
-print "skipping", to_skip
-print "Need ", len(s) - to_skip, "from the end"
+print("skipping", to_skip)
+print("Need ", len(s) - to_skip, "from the end")
 
 output_list = [int(x) for x in s]
 
@@ -32,8 +32,8 @@ while True:
     sumx = sumx + output_list[out]
     output_list[out] = sumx % 10
     # array elements before to_skip don't matter
-  print i
+  print(i)
   if i == 100:
     o = "".join([str(x) for x in output_list])
-    print "from", to_skip, o[to_skip:to_skip + 8]
+    print("from", to_skip, o[to_skip:to_skip + 8])
     break

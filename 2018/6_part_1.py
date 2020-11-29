@@ -55,8 +55,8 @@ for line in lines:
     max_y = y
   coords.append(Coord( (x, y)))
 
-print coords
-print max_x, max_y
+print(coords)
+print(max_x, max_y)
 
 locations = {}  # { (x, y): Location }
 to_check = {}  # { (x, y): Location }
@@ -74,7 +74,7 @@ while to_check:
   new_this_run = {} # {x, y): Location }
   steps += 1
 
-  for location in to_check.values():
+  for location in list(to_check.values()):
     x, y = location.xy
     nearest_coord = location.nearest_coord
     location.distance_from_coords[nearest_coord] = steps
@@ -112,11 +112,11 @@ while to_check:
 largest = 0
 for coord in coords:
   if not coord.infinite:
-    print coord.xy, coord.locations, len(coord.locations)
+    print(coord.xy, coord.locations, len(coord.locations))
     if len(coord.locations) > largest:
       largest = len(coord.locations)
-print largest
+print(largest)
 
 
 for key in sorted(locations):
-  print location.xy, location.distance_from_coords
+  print(location.xy, location.distance_from_coords)

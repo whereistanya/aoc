@@ -44,7 +44,7 @@ class Computer(Thread):
     try:
       return int(x)
     except TypeError:
-      print "Couldn't convert", x
+      print("Couldn't convert", x)
       exit()
 
   def snd(self, x, _):
@@ -96,9 +96,9 @@ class Computer(Thread):
         self.waiting = True
       if self.other_computer.waiting:
         self.waiting = True
-        print "Both computers waiting. Deadlock detected."
-        print self.name, ": final registers:", self.registers
-        print self.name, ": I sent", self.send_count
+        print("Both computers waiting. Deadlock detected.")
+        print(self.name, ": final registers:", self.registers)
+        print(self.name, ": I sent", self.send_count)
         exit()
       sleep_count += 1
       time.sleep(0.001)
@@ -157,7 +157,7 @@ program = []
 for line in lines:
   search = re.search(line_re, line)
   if not search:
-    print "Couldn't match", line
+    print("Couldn't match", line)
     continue
   groups = search.groups()
   op = groups[0]

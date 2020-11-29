@@ -55,7 +55,7 @@ for line in lines:
   scanners[int(values[0])] = Scanner(int(values[0]), int(values[1]))
   scanners[int(values[0])].calculate_locations()
 
-print scanners
+print(scanners)
 
 delay = 0 # Delay is 0 for part 1
 
@@ -79,11 +79,11 @@ while True:
     #  scanner.move()
   #print "Delay", delay, "=>", severity
   if not caught:
-    print "Breaking at delay", delay
+    print("Breaking at delay", delay)
     break
   delay += 1
   #break # just run once for now
 
-print "Part 1", severity
+print("Part 1", severity)
 
 

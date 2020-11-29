@@ -29,19 +29,19 @@ b = "597773730212226687985678021334137828902741274089510083316833453397201220131
 s= ""
 for i  in range(0, 10000):
   s += b
-print "s starts at", len(s)
+print("s starts at", len(s))
 to_skip = int(s[0:7])
 s = s[to_skip:]
 
-print "Need ", len(s) * 10000 - to_skip, "from the end"
-print "s at the end will be", len(s), "digits"
+print("Need ", len(s) * 10000 - to_skip, "from the end")
+print("s at the end will be", len(s), "digits")
 
 # Next: figure out if skipping len(s) gives the same result as startng at zero.
 output_list = [int(x) for x in s]
 
 i = 0
 length = len(output_list)
-print length
+print(length)
 while True:
   i += 1
   array = output_list
@@ -50,7 +50,7 @@ while True:
   else:
     output_list = [0] * (to_skip - 1)
 
-  print "from %d to %s" % (1, length +1)
+  print("from %d to %s" % (1, length +1))
   for out in range(1, length + 1): # each element of output list
     total = 0
     for inp in range(out - 1, length):   # input list
@@ -59,13 +59,13 @@ while True:
         continue
       result = array[inp] * pattern_value
       if out % 10 == 0 and inp == 900:
-        print "** output", out, "p/r/t", pattern_value, result, total
+        print("** output", out, "p/r/t", pattern_value, result, total)
       total += result
     output_list.append(abs(total) % 10)
   if i == 100:
     o = "".join([str(x) for x in output_list])
-    print "from zero", o[0:10]
-    print "from", to_skip, o[to_skip:to_skip + 8]
+    print("from zero", o[0:10])
+    print("from", to_skip, o[to_skip:to_skip + 8])
     break
 
 # 53296082

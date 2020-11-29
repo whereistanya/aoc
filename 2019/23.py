@@ -14,7 +14,7 @@ class Computer(Thread):
   def __init__(self, name):
     super(Computer, self).__init__()
     self.name = name
-    print "Starting Computer", self.name
+    print("Starting Computer", self.name)
     self.inputs = collections.deque([])
     self.stop_event = Event()
     self.program = {}
@@ -35,7 +35,7 @@ class Computer(Thread):
     }
 
   def halt(self):
-    print self.name, ": halt called!"
+    print(self.name, ": halt called!")
     self.stop_event.set()
 
   def reset(self):
@@ -80,7 +80,7 @@ class Computer(Thread):
         value = self.program[position + self.relative_base]
         return value
       else:
-        print "OMG UNKNOWN MODE"
+        print("OMG UNKNOWN MODE")
         return None
     except KeyError:
       return 0
@@ -262,7 +262,7 @@ class NetworkController(object):
     self.halted = True
 
   def run(self):
-    print "Bringing up a network with %d nodes." % (len(self.nodes))
+    print("Bringing up a network with %d nodes." % (len(self.nodes)))
     i = 0
     while True:
       try:
@@ -279,7 +279,7 @@ class NetworkController(object):
               break
           if idle:
             self.nodes[0].set_inputs(self.nat)
-            print "Sent", self.nat[1]
+            print("Sent", self.nat[1])
             i = 0
         continue
       if dest == 255:
@@ -288,7 +288,7 @@ class NetworkController(object):
       i = 0
       out = self.nodes[dest]
       out.set_inputs([x, y])
-    for node in self.nodes.values():
+    for node in list(self.nodes.values()):
       node.join()
 
 

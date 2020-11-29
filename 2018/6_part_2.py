@@ -67,4 +67,4 @@ for location in locations:
   if location.total < 10000:
     count += 1
 
-print count
+print(count)

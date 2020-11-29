@@ -30,23 +30,23 @@ def read_file():
       continue
     if line.startswith("Before:"):
       if instruction:
-        print "error: %s follows after:%s instruction:%s" % (line.strip(), after, instruction)
+        print("error: %s follows after:%s instruction:%s" % (line.strip(), after, instruction))
         sys.exit(1)
       # parse input
       groups = re.search(line_re, line.strip()).groups()
       if groups[0] != "Before":
-        print "error in line", line
+        print("error in line", line)
         sys.exit()
       sample_in = [int(groups[1]), int(groups[2]), int(groups[3]), int(groups[4])]
 
     elif line.startswith("After"):
       if not sample_in or not instruction:
-        print "error: %s follows sample_in:%s instruction:%s" % (line.strip(), sample_in, instruction)
+        print("error: %s follows sample_in:%s instruction:%s" % (line.strip(), sample_in, instruction))
         sys.exit(1)
       # parse output
       groups = re.search(line_re, line.strip()).groups()
       if groups[0] != "After":
-        print "error in line", line
+        print("error in line", line)
         sys.exit()
       sample_out = [int(groups[1]), int(groups[2]), int(groups[3]), int(groups[4])]
 
@@ -191,7 +191,7 @@ for sample in samples:
   if possibles >= 3:
     threeormore += 1
 
-print "Part one:", threeormore
+print("Part one:", threeormore)
 
 ############
 # Part two #
@@ -214,13 +214,13 @@ for sample in samples:
 
 # Now we have a set of potentials for each opcode. First validate that none have
 # no potentials. That would be a bug.
-for v in possibles.values():
+for v in list(possibles.values()):
   assert len(v) > 0
 
 codes = {}  # opcode: opfunc
 seen = set()
 while len(codes) < len(possibles):
-  for k, v in possibles.iteritems():
+  for k, v in possibles.items():
     available = []
     for c in v:
       if c.__name__ not in seen:
@@ -237,4 +237,4 @@ for instruction in program:
   #print "%s(%d, %d, %d)" % (opfunc.__name__, a, b, c)
   opfunc(a, b, c)
 
-print "Part two:", computer.registers
+print("Part two:", computer.registers)

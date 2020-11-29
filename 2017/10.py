@@ -24,12 +24,12 @@ for length in lengths:
   index = index % len(values)
   skip_size += 1
 
-print "Part 1:", values[0] * values[1]
+print("Part 1:", values[0] * values[1])
 
 # Part 2
-print
-print "Part 2"
-print
+print()
+print("Part 2")
+print()
 
 def run_hash(input10):
   n = 256
@@ -69,4 +69,4 @@ assert run_hash("") == "a2582a3a0e66e6e86e3812dcb672a272"
 assert run_hash("1,2,3") == "3efbe78a8d82f29979031a4aa0b16a9d"
 assert run_hash("1,2,4") == "63960835bcdc130f0b66d7ff4f6a5a8e"
 
-print "Dense hash", run_hash(input10)
+print("Dense hash", run_hash(input10))

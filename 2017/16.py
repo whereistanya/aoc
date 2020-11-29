@@ -89,12 +89,12 @@ for time in range(times):
       a, b = move[1:].split("/")
       dance.partner(a, b)
     else:
-      print "unexpected:", move
+      print("unexpected:", move)
       exit()
   s = "".join(dance.display())
   if s == dance.start:
-    print "Back to start after", time, "times"
+    print("Back to start after", time, "times")
     exit()
 
-print "After", times, "times:", s
+print("After", times, "times:", s)
 

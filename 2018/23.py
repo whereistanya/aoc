@@ -74,7 +74,7 @@ for line in lines:
     groups = re.search(line_re, line.strip()).groups()
     x, y, z, r = [int(x) for x in groups]
   except AttributeError:
-    print "Couldn't match", line
+    print("Couldn't match", line)
 
   bot = Nanobot(x, y, z, r)
   if bot.r > strongest:
@@ -82,14 +82,14 @@ for line in lines:
     strongest_bot = bot
   bots.append(bot)
 
-print "Part one: Strongest bot is", strongest_bot
+print("Part one: Strongest bot is", strongest_bot)
 
 in_range = 0
 for bot in bots:
   if strongest_bot.in_range(bot):
     in_range += 1
 
-print "%d bots in range" % in_range
+print("%d bots in range" % in_range)
 
 # Part two
 
@@ -116,8 +116,8 @@ for bot in bots:
   if bot.z < min_z:
     min_z = bot.z
 
-print min_x, min_y, min_z
-print max_x, max_y, max_z
+print(min_x, min_y, min_z)
+print(max_x, max_y, max_z)
 
 # https://raw.githack.com/ypsu/experiments/master/aoc2018day23/vis.html
 class Octree(object):
@@ -201,8 +201,8 @@ while to_check:
   cube.count = bot_count
   #print "Chosen cube: %s" % cube
   if cube.size == 1:
-    print "We're done."
-    print cube.distance
+    print("We're done.")
+    print(cube.distance)
     break
 
   min_x = cube.min_x

@@ -61,7 +61,7 @@ class Grid(object):
         if (x, y) in self.objects:
           s += self.objects[(x, y)]
       s += "\n"
-    print s.zfill(2)
+    print(s.zfill(2))
 
   def neighbours(self, x, y):
     return [(x + 1, y), (x - 1, y), (x, y + 1), (x, y - 1)]
@@ -162,7 +162,7 @@ class Grid(object):
         return distance, i
       except KeyError:
         continue
-    print "ERROR: Key %s didn't have a recorded distance from any of %s" % (key, locations)
+    print("ERROR: Key %s didn't have a recorded distance from any of %s" % (key, locations))
     raise Exception
 
   def run_part2(self):
@@ -181,7 +181,7 @@ class Grid(object):
     while len(to_check) > 0:
       existing_keys, existing_score, existing_locations = to_check.popleft()
       if len(existing_keys) == len(self.keys): # We have them all
-        print "All keys!:", existing_keys, existing_score
+        print("All keys!:", existing_keys, existing_score)
         if existing_score < self.shortest:
           self.shortest = existing_score
 
@@ -206,7 +206,7 @@ class Grid(object):
     shortest_distance = {}  # (sorted existing keys as str, last key): score
 
     initial_visible_keys = self.visible_keys("@", "")
-    print initial_visible_keys
+    print(initial_visible_keys)
     for key in initial_visible_keys:
       to_check.append((key, self.distances[("@", key)]))
     while len(to_check) > 0:
@@ -214,7 +214,7 @@ class Grid(object):
       last = existing_keys[-1]
       new_keys = self.visible_keys(last, existing_keys)
       if len(existing_keys) == len(self.keys):
-        print "All keys:", existing_keys, existing_score
+        print("All keys:", existing_keys, existing_score)
         if existing_score < self.shortest:
           self.shortest = existing_score
       if new_keys:
@@ -240,4 +240,4 @@ grid = Grid()
 grid.populate(lines)
 grid.display()
 grid.run_part2()
-print "Shortest was", grid.shortest
+print("Shortest was", grid.shortest)

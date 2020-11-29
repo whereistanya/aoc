@@ -138,7 +138,7 @@ while True:
   i += 1
   if computer.registers[ip] +1 >= len(program):
     # Last instruction.
-    print "HALT"
+    print("HALT")
     break
   computer.registers[ip] += 1
   line = program[computer.registers[ip]]
@@ -149,7 +149,7 @@ while True:
   x = func(a, b, c)
   # print "ip=%01d %s %s %d %d %d %s" % (computer.registers[ip], prereg, funcname, a, b, c, computer.registers)
 
-print "Part one:", computer.registers[0]
+print("Part one:", computer.registers[0])
 
 ############
 # Part two #
@@ -163,4 +163,4 @@ for i in range(1, to_factor / 2 + 1):
   if to_factor % i == 0:
     total += i
 
-print "Part two:", total
+print("Part two:", total)

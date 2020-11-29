@@ -34,7 +34,7 @@ class PowerGrid(object):
 
 		max_total = 0
 		max_point = None
-		for key, total in self.squares.iteritems():
+		for key, total in self.squares.items():
 			if total > max_total:
 				max_total = total
 				max_point = key
@@ -74,5 +74,5 @@ serial = 9306
 grid = PowerGrid(serial)
 
 # Guessing this is a square of 20 or less. Can try bigger ones but it's slow.
-print grid.get_highest_square(20)  # Submit without a space
+print(grid.get_highest_square(20))  # Submit without a space
 

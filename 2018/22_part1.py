@@ -22,7 +22,7 @@ class Region(object):
       return self._region_type
     self.erosion_level()
     if self._region_type < 0:
-      print "Still -1 after e_l()"
+      print("Still -1 after e_l()")
     return self._region_type
 
   def geologic_index(self):
@@ -88,7 +88,7 @@ class Cave(object):
         else:
           s += symbol
       s += "\n"
-    print s
+    print(s)
 
 # main
 depth = 510
@@ -97,4 +97,4 @@ depth = 6084
 target = (14, 709)
 cave = Cave(depth, target)
 cave.draw()
-print "Risk level is", cave.risk_level(0, 0, target[0], target[1])
+print("Risk level is", cave.risk_level(0, 0, target[0], target[1]))

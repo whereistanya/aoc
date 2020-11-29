@@ -21,7 +21,7 @@ class Region(object):
       return self._region_type
     self.erosion_level()
     if self._region_type < 0:
-      print "Still -1 after e_l()"
+      print("Still -1 after e_l()")
     return self._region_type
 
   def geologic_index(self):
@@ -93,7 +93,7 @@ class Cave(object):
     self.draw()
 
     # Now generate the moves.
-    for region in self.regions.values():
+    for region in list(self.regions.values()):
       for tool in region.possible_tools:
         move = Move(region, tool)
         # TODO: gross
@@ -106,7 +106,7 @@ class Cave(object):
 
     # Now that all moves are created, wire up each move to its neighbours.
     # TODO: this layer of indirection is annoying.
-    for movelist in self.moves.values():
+    for movelist in list(self.moves.values()):
       for move in movelist:
         x, y = move.region.x, move.region.y
         north = (x, y - 1)
@@ -147,15 +147,15 @@ class Cave(object):
     #print s
 
   def shortest_path(self, source):
-    print "Finding shortest path from", source
-    print "I stole this dijkstra code from"
-    print "https://gist.github.com/econchick/4666413"
+    print("Finding shortest path from", source)
+    print("I stole this dijkstra code from")
+    print("https://gist.github.com/econchick/4666413")
 
     visited = {source: 0}
     path = {}
 
     nodes = []
-    for v in self.moves.values():
+    for v in list(self.moves.values()):
       nodes.extend(v)
     nodes = set(nodes)
 
@@ -200,8 +200,8 @@ target = (14, 709)
 # "once you reach the target, you need the torch equipped"
 cave = Cave(depth, target, "torch")
 cave.draw()
-print "Part one: Risk level is", cave.risk_level(0, 0, target[0], target[1])
-print
+print("Part one: Risk level is", cave.risk_level(0, 0, target[0], target[1]))
+print()
 
 # We now have a graph of Moves each linked to their neighbours.
 visited = set()
@@ -219,4 +219,4 @@ for move in start_region_moves:
 assert start # not None
 
 # I don't freakin know why -1
-print "Part two: %d" % cave.shortest_path(start) - 1
+print("Part two: %d" % cave.shortest_path(start) - 1)

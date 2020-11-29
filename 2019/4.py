@@ -51,4 +51,4 @@ for i in range (265275, 781585):
   if has_double(i) and increasing_digits(i):
     possible.add(i)
 
-print len(possible)
+print(len(possible))

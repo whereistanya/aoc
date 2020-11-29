@@ -12,7 +12,7 @@ class Computer(Thread):
     # Initialise thread.
     super(Computer, self).__init__()
     self.name = name
-    print "Starting Computer", self.name
+    print("Starting Computer", self.name)
     self.inputs = collections.deque([])
     self.program = []
     self.output = 0
@@ -33,7 +33,7 @@ class Computer(Thread):
     self.program = program
 
   def set_inputs(self, inputs):
-    print self.name, ": setting inputs to", inputs
+    print(self.name, ": setting inputs to", inputs)
     for n in inputs:
       self.inputs.append(n)
 
@@ -117,7 +117,7 @@ class Computer(Thread):
     #print "Enter input! "
     #value = int(input())
     value = self.next_input()
-    print "%s: INPUT: %d" % (self.name, value)
+    print("%s: INPUT: %d" % (self.name, value))
     #print "Accepting input %d" % value
     self.program[self.program[index + 1]] = value
     return index + 2
@@ -127,7 +127,7 @@ class Computer(Thread):
       n = self.program[self.program[index + 1]]
     else:
       n = self.program[index + 1]
-    print "%s: Diagnostic code: %d" % (self.name, n)
+    print("%s: Diagnostic code: %d" % (self.name, n))
     self.output = n
     self.output_computer.set_inputs([n])
     return index + 2
@@ -161,7 +161,7 @@ class Computer(Thread):
 
     n = x + y
     self.program[self.program[index + 3]] = n
-    print "%s %d + %d = %d" % (self.name, x, y, n)
+    print("%s %d + %d = %d" % (self.name, x, y, n))
     return index + 4
 
   def run(self):
@@ -262,7 +262,7 @@ computer4 = Computer("D")
 computer5 = Computer("E")
 
 order = [9, 8, 7, 6, 5]
-print order
+print(order)
 
 
 computer1.set_inputs([order[0], 0])

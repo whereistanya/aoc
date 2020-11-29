@@ -51,7 +51,7 @@ class Constellation(object):
       if (abs(star_x - x) + abs(star_y - y) + abs(star_z - z) + abs(star_a - a)) <= 3:
         star_connected = True
     if star_connected != max_connected:
-      print "Ok, the range assumption doesn't work"
+      print("Ok, the range assumption doesn't work")
     return star_connected
 
   def insert(self, point):
@@ -180,4 +180,4 @@ assert len(make_constellations(lines2)) == 4
 assert len(make_constellations(lines3)) == 3
 assert len(make_constellations(lines4)) == 8
 
-print len(make_constellations(lines))
+print(len(make_constellations(lines)))
