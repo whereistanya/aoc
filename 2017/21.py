@@ -36,14 +36,16 @@ class Pattern(Square):
     """
     matches = set() # set([str, ...])
     self.output = output
-    self.variants = set() # set of strings
-    #self.make_variants(initial)
+    self.variants = [] # list of lists of strings.
+    self.initial = initial
+    input_rows = initial.split("/")
+    self.make_variants(input_rows)
 
   def match(self, square):
-    # Not awesome to do this string wrangling, but nice to check set
-    # membership and can't do that for lists.
-    matchable = "".join(square)
-    if matchable in self.variants:
+    # it'd be nice if variants was a set but you can't hash lists and the number
+    # of variants is small so we'll survive.
+    print "Matching %s against\n%s" % (square, self.variants)
+    if square in self.variants:
       return True
     return False
 
@@ -56,11 +58,12 @@ class Pattern(Square):
     """
     for i in range(4):
       pattern = SquareChanger.rotate(pattern)
-      #self.add_string_variant()
+      self.variants.append(pattern)
     pattern = SquareChanger.flip(pattern)
     for i in range(4):
       pattern = SquareChanger.rotate(pattern)
-      #self.add_string_variant()
+      self.variants.append(pattern)
+    print ("Variants of %s are %s" % (self.initial, self.variants))
 
 
 class SquareChanger(object):
@@ -97,6 +100,7 @@ class SquareChanger(object):
     implement a matrix rotation algorithm but let the record show that I am
     exactly this lazy. Same args, philosophy as flip().
     """
+    print "Rotating", pattern
     newrows = []
     for i in range(len(pattern)):
       # turn columns into rows by creating new lists with the 1st element of
@@ -106,87 +110,66 @@ class SquareChanger(object):
     return newrows
 
   @staticmethod
-  def split4(square):
-    """Returns this square split in 4, or None if it's not at least 4 wide.
-     row0   00 01 | 02 03
-     row1   04 05 | 06 07
-        -----   -----
-     row2   08 09 | 10 11
-     row3   12 13 | 14 15
+  def split(sq):
+    # TODO: sqlen and width probably should be swapped. Confusing names.
+    print("Got square of %d x %d, splitting" % (len(sq), len(sq[0])))
+    sqlen = len(sq)
+    if sqlen <= 3:
+      return [sq]
+    if sqlen % 2 == 0:
+      width = sqlen / 2
+    elif sqlen % 3 == 0:
+      width = sqlen / 3
+    else:
+      print("BUG: Unexpected square width %d" % sqlen)
+      exit()
 
-    Returns([Square, Square, ...] where each square is 2x2
-    """
-    pass
-    """
-    p = self.pattern
-    if self.width % 4 != 0:
-      print "Can't split: width is", self.width
-      return None
-    new_square = [
-      Square(p[0] + p[1] + p[4] + p[5]),
-      Square(p[2] + p[3] + p[6] + p[7]),
-      Square(p[8] + p[9] + p[12] + p[13]),
-      Square(p[10] + p[11] + p[14] + p[15]),
-    ]
-    return new_square
-    """
-
-  @staticmethod
-  def split9(square):
-    """Returns this square split in 9, or None if it's not at least 9 wide.
-
-    row0 00 01 02 | 03 04 05 | 06 07 08 |
-    row1 09 10 11 | 12 13 14 | 15 16 17 |
-    row2 18 19 20 | 21 22 23 | 24 25 26 |
-         -------- | -------- | --------
-    row3 27 28 29 | 30 31 32 | 33 34 35 |
-    row4 36 37 38 | 39 40 41 | 42 43 44 |
-    row5 45 46 47 | 48 49 50 | 51 52 53 |
-         -------  | -------- | --------
-    row6 54 55 56 | 57 58 59 | 60 61 62 |
-    row7 63 64 65 | 66 67 68 | 69 70 71 |
-    row8 72 73 74 | 75 76 77 | 78 79 80 |
-  Returns([Square, Square, ...] where each square is 3x3
-  """
-    pass
-    """
-    p = self.pattern
-    if self.width % 9 != 0:
-      print "Can't split: width is", self.width
-      return None
-    new_square = [
-      #Square("".join[p[00], p[01], p[02], p[09], p[10], p[11], p[18], p[19], p[20]]),
-      #Square("".join[p[03], p[04], p[05], p[12], p[13], p[14], p[21], p[22], p[23]]),
-      #Square("".join[p[06], p[07], p[08], p[15], p[16], p[17], p[24], p[25], p[26]]),
-#
-#      Square("".join[p[27], p[28], p[29], p[36], p[37], p[38], p[45], p[46], p[47]]),
-#      Square("".join[p[30], p[31], p[32], p[39], p[40], p[41], p[48], p[49], p[50]]),
-#      Square("".join[p[33], p[34], p[35], p[42], p[43], p[44], p[51], p[52], p[53]]),
-#
-#      Square("".join[p[54], p[55], p[56], p[63], p[64], p[65], p[72], p[73], p[74]]),
-#      Square("".join[p[57], p[58], p[59], p[66], p[67], p[68], p[75], p[76], p[77]]),
-#      Square("".join[p[60], p[61], p[62], p[69], p[70], p[71], p[78], p[79], p[80]]),
-    ]
-    return new_square
-  """
+    height = width # just for code clarity because this is confusing
+    y = 0
+    x = 0
+    newsqs = []
+    while y < sqlen:
+      # calculate the N squares in this set of rows then move down
+      while x < sqlen:
+        newsq = []
+        # calculate the square starting at this X then move right
+        for i in range(width): # each row in the square
+          newsq.append(sq[y + i][x:x + width])
+        newsqs.append(newsq)
+        x += width
+      y += height
+      x = 0
+    print("Turned %s into %s" % (sq, newsqs))
+    return newsqs
 
   @staticmethod
-  def split(square):
-    print("Got square of %d x %d, splitting") % (self.width, self.width)
-    pass
+  def join(sqs):
     """
-    if self.width == 2:
-      return [self]
-    if self.width == 3:
-      return [self]
-    if self.width == 4:
-      return split4()
-    if self.width == 9:
-      return split9()
-    print "BUG: Unexpected width:", self.width
-    exit()
-    return None
+    Wow, I bet there's an easy way to do this, but I didn't find it.
+
+    assert SquareChanger.join([["12", "56"], ["34", "78"],
+                               ["9A", "DE"], ["BC", "FG"]]) == 
+                               ["1234", "5678", "9ABC", "DEFG"]
     """
+    print("Got %d squares of size %d, joining" % (len(sqs), len(sqs[0])))
+    sqlen = len(sqs[0]) # width of one input square
+    gridlen = len(sqs)  # width of the output square
+    grid = []  # [str, ...]
+
+    y = 0
+    sqno = 0 # iterate through the squares
+    while y < gridlen: # operate on the next `sqlen` rows
+      rows = [""] * sqlen
+      # combine this row from the next N squares
+      for j in range(sqlen): # this many rows
+        print("Creating row", y + j)
+        for x in range(sqlen): # this many squares across
+          rows[j] += sqs[sqno + x][(y + j) % sqlen] # this row of the square
+      sqno += sqlen
+      y += sqlen
+      grid.extend(rows)
+    return grid
+
 
 
 class Grid(object):
@@ -206,11 +189,10 @@ class Grid(object):
 
   def set_rules(self, rules):
     for rule in rules:
-      x, y = rule.strip().replace("/", "").split(" => ")
+      x, y = rule.strip().split(" => ")
       self.rules.append(Pattern(x, y))
 
   def run(self):
-    print "Starting iteration %d with %d squares" % (iteration, len(self.squares))
     next_squares = []
     # TODO: understand the expected size of the new grid and initialise it with
     # Nones or something, so we can put the new squares in in place.
@@ -219,8 +201,8 @@ class Grid(object):
       for square in row:
         print "Processing square of width", square.width
         # divide into 2x2 or 3x3 squares
-        new_squares = square.split()  # [Square, ...]
-
+        new_squares = SquareChanger.split(square.rows)  # return a list of lists of strings;
+                                      #  should use Squares instead.
         to_join = []
         for new_square in new_squares:
           matched = False
@@ -233,6 +215,7 @@ class Grid(object):
             print "BUG: didn't match:"
             print new_square
             exit()
+      grid = SquareChanger.join(to_join)
       # TODO: Put the new squares in their place in the new grid
       # TODO: Then, if needed, rebalance the grid.
 
@@ -244,9 +227,65 @@ lines = [
   ".#./..#/### => #..#/..../..../#..#",
 ]
 
+def run_tests():
+  assert SquareChanger.flip(["123", "456", "789"]) == [ "789", "456", "123"]
+  assert SquareChanger.flip(["12", "34"]) == [ "34", "12"]
+  assert SquareChanger.flip(["1",]) == [ "1"]
+  assert SquareChanger.rotate(["123", "456", "789"]) == ["741", "852", "963"]
+  assert SquareChanger.rotate(["12", "34"]) == ["31", "42"]
+  assert SquareChanger.rotate(["1"]) == ["1"]
+
+  assert SquareChanger.split(["1234", "5678", "9ABC", "DEFG"]) == [
+                              ["12", "56"], ["34", "78"], ["9A", "DE"], ["BC", "FG"] ]
+  assert SquareChanger.split(["000111222",
+                              "000111222",
+                              "000111222",
+                              "333444555",
+                              "333444555",
+                              "333444555",
+                              "666777888",
+                              "666777888",
+                              "666777888",]) == [
+                                ["000", "000", "000"],
+                                ["111", "111", "111"],
+                                ["222", "222", "222"],
+                                ["333", "333", "333"],
+                                ["444", "444", "444"],
+                                ["555", "555", "555"],
+                                ["666", "666", "666"],
+                                ["777", "777", "777"],
+                                ["888", "888", "888"],
+                              ]
+
+  assert SquareChanger.join([["12", "56"], ["34", "78"],
+                             ["9A", "DE"], ["BC", "FG"]]) == ["1234", "5678", "9ABC", "DEFG"]
+  assert SquareChanger.join([
+                                ["000", "000", "000"],
+                                ["111", "111", "111"],
+                                ["222", "222", "222"],
+                                ["333", "333", "333"],
+                                ["444", "444", "444"],
+                                ["555", "555", "555"],
+                                ["666", "666", "666"],
+                                ["777", "777", "777"],
+                                ["888", "888", "888"],
+                              ]) == [
+                              "000111222",
+                              "000111222",
+                              "000111222",
+                              "333444555",
+                              "333444555",
+                              "333444555",
+                              "666777888",
+                              "666777888",
+                              "666777888" ]
+  print ("Tests passed.")
+
+
+
 # Real lines
-with open("input21.txt", "r") as f:
-  lines = f.readlines()
+# with open("input21.txt", "r") as f:
+#  lines = f.readlines()
 
 # Starter
 starter = [
@@ -255,18 +294,10 @@ starter = [
   "###",
 ]
 
-iteration = 1
 grid = Grid(starter)
 grid.set_rules(lines)
-
-assert SquareChanger.flip(["123", "456", "789"]) == [ "789", "456", "123"]
-assert SquareChanger.flip(["12", "34"]) == [ "34", "12"]
-assert SquareChanger.flip(["1",]) == [ "1"]
-assert SquareChanger.rotate(["123", "456", "789"]) == ["741", "852", "963"]
-assert SquareChanger.rotate(["12", "34"]) == ["31", "42"]
-assert SquareChanger.rotate(["1"]) == ["1"]
-print ("Tests passed.")
-
+grid.run()
+print "Grid after 1:", grid
 
 # 125 too low
 # 292 too high.
