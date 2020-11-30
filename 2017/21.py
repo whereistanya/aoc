@@ -2,53 +2,24 @@
 
 import math
 
-class Square(object):
-  """A Square is represented as a list of strings, like this:
-    [ ".#.",
-      "...",
-      "###",
-    ]
-    Each character is a pixel, which may be on ("#") or off (".")
-  """
-  def __init__(self, rows):
-    self.rows = rows  # [ str, ...]
-    self.width = len(rows[0])
-
-  def count_on(self):
-    count = 0
-    for row in self.rows:
-      for char in row:
-        if char == "#":
-          count += 1
-    return count
-
-  def __repr__(self):
-    s = ""
-    for i in range(self.width):
-      s += "%s\n" % (self.pattern[i * self.width: i * self.width + self.width])
-    return s
-
-class Pattern(Square):
+class Pattern(object):
   def __init__(self, initial, output):
     """Initialise a new pattern.
     Initial and output are strings, because that's how we get them from the puzzle
     input, but we turn them into 'rows', i.e., a list of strings.
     """
     matches = set() # set([str, ...])
-    self.output = output
-    self.variants = [] # list of lists of strings.
-    self.initial = initial
+    self.output = output.split("/")
+    self.variants = [] # list of strings.
     input_rows = initial.split("/")
     self.make_variants(input_rows)
 
   def match(self, square):
-    # it'd be nice if variants was a set but you can't hash lists and the number
-    # of variants is small so we'll survive.
-    print "Matching %s against\n%s" % (square, self.variants)
-    if square in self.variants:
+    matchable = "".join(square)
+    # print "Matching %s against\n%s" % (matchable, self.variants)
+    if matchable in self.variants:
       return True
     return False
-
 
   def make_variants(self, pattern):
     """Create and store all variants of this pattern.
@@ -58,12 +29,11 @@ class Pattern(Square):
     """
     for i in range(4):
       pattern = SquareChanger.rotate(pattern)
-      self.variants.append(pattern)
+      self.variants.append("".join(pattern))
     pattern = SquareChanger.flip(pattern)
     for i in range(4):
       pattern = SquareChanger.rotate(pattern)
-      self.variants.append(pattern)
-    print ("Variants of %s are %s" % (self.initial, self.variants))
+      self.variants.append("".join(pattern))
 
 
 class SquareChanger(object):
@@ -100,7 +70,7 @@ class SquareChanger(object):
     implement a matrix rotation algorithm but let the record show that I am
     exactly this lazy. Same args, philosophy as flip().
     """
-    print "Rotating", pattern
+    #print "Rotating", pattern
     newrows = []
     for i in range(len(pattern)):
       # turn columns into rows by creating new lists with the 1st element of
@@ -111,35 +81,38 @@ class SquareChanger(object):
 
   @staticmethod
   def split(sq):
-    # TODO: sqlen and width probably should be swapped. Confusing names.
-    print("Got square of %d x %d, splitting" % (len(sq), len(sq[0])))
-    sqlen = len(sq)
-    if sqlen <= 3:
-      return [sq]
-    if sqlen % 2 == 0:
-      width = sqlen / 2
-    elif sqlen % 3 == 0:
-      width = sqlen / 3
-    else:
-      print("BUG: Unexpected square width %d" % sqlen)
-      exit()
+    print("Got a %d x %d square; splitting it." % (len(sq), len(sq[0])))
+    rowcount = len(sq) # number of rows; width of initial square
 
-    height = width # just for code clarity because this is confusing
+    # 6x6 becomes 9 2x2 squares
+    if rowcount <= 3:
+      return [sq]
+    if rowcount % 2 == 0:
+      newsqlen = 2
+    elif rowcount % 3 == 0:
+      newsqlen = 3
+    else:
+      print("BUG: Unexpected square newsqlen %d" % rowcount)
+      exit()
+    sqsperrow = rowcount / newsqlen
+
+    height = newsqlen # just for code clarity because this is confusing
     y = 0
     x = 0
     newsqs = []
-    while y < sqlen:
+    while y < rowcount:
       # calculate the N squares in this set of rows then move down
-      while x < sqlen:
+      while x < rowcount: # width here because it's a square
         newsq = []
         # calculate the square starting at this X then move right
-        for i in range(width): # each row in the square
-          newsq.append(sq[y + i][x:x + width])
+        for i in range(newsqlen): # each row in the square
+          #print i, "print appending", sq[y + i][x:x + newsqlen]
+          newsq.append(sq[y + i][x:x + newsqlen])
+        #print "Made a square", newsq
         newsqs.append(newsq)
-        x += width
+        x += newsqlen
       y += height
       x = 0
-    print("Turned %s into %s" % (sq, newsqs))
     return newsqs
 
   @staticmethod
@@ -152,20 +125,25 @@ class SquareChanger(object):
                                ["1234", "5678", "9ABC", "DEFG"]
     """
     print("Got %d squares of size %d, joining" % (len(sqs), len(sqs[0])))
+    sqcount = len(sqs)  # How many squares
+    if sqcount == 1:
+      return sqs[0]
     sqlen = len(sqs[0]) # width of one input square
-    gridlen = len(sqs)  # width of the output square
+    sqperrow = int(math.sqrt(sqcount))
+    rowcount = sqlen * sqperrow
+    # print("We have", rowcount, "rows, working in batches of", sqlen, "with", sqperrow, "per row")
     grid = []  # [str, ...]
 
     y = 0
     sqno = 0 # iterate through the squares
-    while y < gridlen: # operate on the next `sqlen` rows
+    while y < rowcount:
+      # operate on the next `sqlen` rows
       rows = [""] * sqlen
       # combine this row from the next N squares
       for j in range(sqlen): # this many rows
-        print("Creating row", y + j)
-        for x in range(sqlen): # this many squares across
+        for x in range(sqperrow): # this many squares across
           rows[j] += sqs[sqno + x][(y + j) % sqlen] # this row of the square
-      sqno += sqlen
+      sqno += sqperrow
       y += sqlen
       grid.extend(rows)
     return grid
@@ -173,19 +151,17 @@ class SquareChanger(object):
 
 
 class Grid(object):
-  """A grid is a 2D array of squares, like this:
-
-  [
-    [ Square, Square, Square, ],
-    [ Square, Square, Square, ],
-    [ Square, Square, Square, ],
-  ]
-  Each square has rows inside.
-  """
+  """A grid is a list of strings."""
 
   def __init__(self, initial):
-    self.squares = [[ Square(initial) ]] # [ [ Square, ...], [Square, ...] ]  # in rows
     self.rules = [] # [Pattern, ...]
+    self.grid = initial
+
+  def __repr__(self):
+    s = "\n"
+    for row in self.grid:
+      s += "%s\n" % row
+    return s
 
   def set_rules(self, rules):
     for rule in rules:
@@ -193,39 +169,32 @@ class Grid(object):
       self.rules.append(Pattern(x, y))
 
   def run(self):
-    next_squares = []
-    # TODO: understand the expected size of the new grid and initialise it with
-    # Nones or something, so we can put the new squares in in place.
+    new_squares = SquareChanger.split(self.grid)
+    to_join = []
+    for new_square in new_squares:
+      matched = False
+      for rule in self.rules:
+        if rule.match(new_square):
+          to_join.append(rule.output)
+          matched = True
+          break
+      if not matched:
+        print "BUG: didn't match:"
+        print new_square
+        exit()
+    print ("Matched all of them. Now have %d of size %d" % (len(to_join),
+                                                           len(to_join[0])))
+    self.grid = SquareChanger.join(to_join)
 
-    for row in self.squares:
-      for square in row:
-        print "Processing square of width", square.width
-        # divide into 2x2 or 3x3 squares
-        new_squares = SquareChanger.split(square.rows)  # return a list of lists of strings;
-                                      #  should use Squares instead.
-        to_join = []
-        for new_square in new_squares:
-          matched = False
-          for rule in self.rules:
-            if rule.match(new_square):
-              to_join.append(rule.output)
-              matched = True
-              break
-          if not matched:
-            print "BUG: didn't match:"
-            print new_square
-            exit()
-      grid = SquareChanger.join(to_join)
-      # TODO: Put the new squares in their place in the new grid
-      # TODO: Then, if needed, rebalance the grid.
+  def count_on(self):
+    count = 0
+    for row in self.grid:
+      for char in row:
+        if char == "#":
+          count += 1
+    return count
 
 
-# main()
-# Test lines
-lines = [
-  "../.# => ##./#../...",
-  ".#./..#/### => #..#/..../..../#..#",
-]
 
 def run_tests():
   assert SquareChanger.flip(["123", "456", "789"]) == [ "789", "456", "123"]
@@ -282,10 +251,19 @@ def run_tests():
   print ("Tests passed.")
 
 
+# main()
+# Test lines
+lines = [
+  "../.# => ##./#../...",
+  ".#./..#/### => #..#/..../..../#..#",
+]
+
 
 # Real lines
-# with open("input21.txt", "r") as f:
-#  lines = f.readlines()
+with open("input21.txt", "r") as f:
+  lines = f.readlines()
+
+run_tests()
 
 # Starter
 starter = [
@@ -294,10 +272,13 @@ starter = [
   "###",
 ]
 
+iterations_to_run = 18  # 5 for part 1
+
 grid = Grid(starter)
 grid.set_rules(lines)
-grid.run()
-print "Grid after 1:", grid
 
-# 125 too low
-# 292 too high.
+for i in range(iterations_to_run):
+  grid.run()
+
+#print ("Grid after %d: %s" % (i, grid))
+print grid.count_on()
