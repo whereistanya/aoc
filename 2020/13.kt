@@ -40,7 +40,7 @@ fun main() {
   val part2: List<String> = input.trim().split(",")
   val factors = mutableListOf<Int>()
   // 647, the 23rd bus, is the biggest number, so anchor on that.
-  // This fact list is not used; it's just to print out for
+  // This factor list is not used; it's just to print out for
   // understanding how far away from 23 everything else is.
   for (i in (0..(part2.size) - 1)) {
     if (part2[i] == "x") {
@@ -52,8 +52,6 @@ fun main() {
   }
   // println(factors)
 
-  val zero: Long = 0  // This can't be the best way to compare a long against
-                      // zero...
   var j: Long = 647   // Could shave some minutes by starting at the first
                       // multiple of 647 over 100000000000000 but whatevs.
   // This code would be clearer if I took the numbers in order, but it's an
@@ -61,33 +59,34 @@ fun main() {
   // every 23rd one.
   while (true) {
     j += 647
-    if ((j + 31) % 557 != zero) {
+    if ((j + 31) % 557 != 0L) {
       continue
     }
-    if ((j - 10) % 41 != zero) {
+    if ((j - 10) % 41 != 0L) {
       continue
     }
-    if ((j + 37) % 37 != zero) {
+    if ((j + 37) % 37 != 0L) {
       continue
     }
-    if ((j + 29) % 29 != zero) {
+    if ((j + 29) % 29 != 0L) {
       continue
     }
-    if ((j - 23) % 23 != zero) {
+    if ((j - 23) % 23 != 0L) {
       continue
     }
-    if ((j + 19) % 19 != zero) {
+    if ((j + 19) % 19 != 0L) {
       continue
     }
-    if ((j + 48) % 17 != zero) {
+    println("6: $j")
+    if ((j + 48) % 17 != 0L) {
       continue
     }
-    if ((j + 18) % 13 != zero) {
+    println("7: $j")
+    if ((j + 18) % 13 != 0L) {
       continue
     }
     println(j - 23) //      867295486378319, 29m later.
     break
-    }
   }
   println("Part 2: $j - 23")
 
