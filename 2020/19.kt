@@ -8,10 +8,41 @@ class Rule(name: String) {
   var matchString = ""
   var matched = mutableMapOf<String, Boolean>()
   var matches = mutableListOf<List<Rule>>()
+  var letter:String = ""
+  var found = mutableListOf<String>()
 
+  fun generateMatches(): List<String> {
+    //println("Generating matches for $name")
+    if (letter != "") {
+      return listOf<String>(letter)
+    }
+    var found = mutableListOf<String>()
+    for (ruleGroup in matches) {
+      if (ruleGroup.size == 1) {
+        for (i in ruleGroup[0].generateMatches()) {
+          found.add(i)
+        }
+        continue
+      }
+      val first = ruleGroup[0]
+      val second = ruleGroup[1]
+
+      var firstMatches = first.generateMatches()
+      var secondMatches = second.generateMatches()
+
+      for (i in firstMatches) {
+        for (j in secondMatches) {
+          var s: String = "$i$j"
+          //println(s)
+          found.add(s)
+        }
+      }
+    }
+    return found.toList()
+  }
 
   fun match(word: String): Boolean {
-    println("Does $word match rule $name ($matches)?")
+    //println("Does $word match rule $name ($matches)?")
     if (this.matched.containsKey(word)) {
       //println("Returned ${this.matched[word]!!} from cache!")
       return this.matched[word]!!
@@ -22,13 +53,18 @@ class Rule(name: String) {
         //println("$word is too short for this $ruleGroup to match")
         continue
       }
-      if (ruleGroup.size == 1) {
-        return ruleGroup[0].match(word)
-      }
       if (ruleGroup.size > 2) {
         println("ERROR: expected to match only 2, got ${ruleGroup.size}:")
         println("$ruleGroup}")
         exitProcess(1)
+      }
+      if (ruleGroup.size == 1) {
+        //println("Only matches one: recursing")
+        if (ruleGroup[0].match(word)) {
+          return true
+        } else {
+          continue
+        }
       }
       val first = ruleGroup[0]
       val second = ruleGroup[1]
@@ -62,7 +98,7 @@ fun main() {
   val fileName = "input19.txt"
   var lines: List<String> = File(fileName).readLines()
 
-///*
+/*
   lines = listOf<String>(
     "0: 4 1",
     "1: 2 3 | 3 2",
@@ -77,7 +113,7 @@ fun main() {
     "aaabb",
     "aaaabb"
   )
-//*/
+*/
 
   val rules = mutableMapOf<String, Rule>()
   val words = mutableListOf<String>()
@@ -98,6 +134,7 @@ fun main() {
           if (ruleNumber.toIntOrNull() == null) {
             // Not actually a number. Add to the list of matched strings instead.
             rule.matched[ruleNumber.replace("\"", "")] = true
+            rule.letter = ruleNumber.replace("\"", "")
             continue
           }
           var matchingRule = rules.getOrPut(ruleNumber) { Rule(ruleNumber) }
@@ -112,16 +149,28 @@ fun main() {
       words.add(line)
     }
   }
-  var count = 0
+  var count1 = 0
+  var count2 = 0
   var zerothRule = rules["0"]!!
+  var matched = zerothRule.generateMatches()
+
   for (word in words) {
+    var match1 = false
+    var match2 = false
+
     if (zerothRule.match(word)) {
-      println("$word matches!")
-      count += 1
+      match1 = true
+      count1 += 1
+    }
+    if (word in matched) {
+      match2 = true
+      count2 += 1
+    }
+    if (match1 != match2) {
+      println("Bad: $word, $match1, $match2")
     } else {
-      println("$word doesn't match!")
+      println("Good: $word, $match1, $match2")
     }
   }
-  println("There were $count matches")
-
+  println("There were $count1 or $count2 matches")
 }
