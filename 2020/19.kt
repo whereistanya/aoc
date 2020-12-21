@@ -19,6 +19,9 @@ class Rule(name: String) {
     var found = mutableListOf<String>()
     for (ruleGroup in matches) {
       if (ruleGroup.size == 1) {
+        // 8: 42 | 42 8
+        //if (this.name == '8')
+        // Add this same thing a bunch of times
         for (i in ruleGroup[0].generateMatches()) {
           found.add(i)
         }
@@ -33,8 +36,9 @@ class Rule(name: String) {
       for (i in firstMatches) {
         for (j in secondMatches) {
           var s: String = "$i$j"
-          //println(s)
+          // if (this.name == "11") {
           found.add(s)
+          //println(s)
         }
       }
     }
