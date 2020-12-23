@@ -119,7 +119,6 @@ fun main() {
       val pieces = line.split(":")
       val rule = rules.getOrPut(pieces.first()) { Rule(pieces.first()) }
       rule.matchString = pieces.last() // Just used for debugging.
-      println(rule.matchString)
       for (x in pieces.last().split("|")) {
         var ruleGroup = mutableListOf<Rule>()
         for (ruleNumber in x.split(" ").map { it.trim() } ) {
@@ -135,7 +134,6 @@ fun main() {
           var matchingRule = rules.getOrPut(ruleNumber) { Rule(ruleNumber) }
           ruleGroup.add(matchingRule)
         }
-        println("Rulegroup: $ruleGroup")
         if (! ruleGroup.isEmpty()) {
           rule.matches.add(ruleGroup)
         }
@@ -156,14 +154,29 @@ fun main() {
   val fortyTwo = rules["42"]!!
   val thirtyOne = rules["31"]!!
   var matched = zerothRule.generateMatches()
+  // 0: 8 11
+  // 8: 42 | 42 8
+  // 11: 42 31 | 42 11 31
   val fortyTwoMatches = fortyTwo.generateMatches()
   val thirtyOneMatches = thirtyOne.generateMatches()
   val baseLen = 8 // 5 for test input, 8 for real
 
-  println("Intersection = ${fortyTwoMatches.intersect(thirtyOneMatches)}")
+  //println("Intersection = ${fortyTwoMatches.intersect(thirtyOneMatches)}")
   // No intersection, so if we match one, we don't match the other.
 
-  for (word in words) {
+
+  /*
+  println(fortyTwo.match("aaabbbbb"))
+  println(fortyTwo.match("aaaaabbb"))
+  println(fortyTwo.match("ababbabb"))
+  println(fortyTwo.match("baaababa"))
+  println(thirtyOne.match("aaabbbbb"))
+  println(thirtyOne.match("aaaaabbb"))
+  println(thirtyOne.match("ababbabb"))
+  println(thirtyOne.match("baaababa"))
+  */
+
+  for (word in words.sorted()) {
     // Values for recursive matching, generate everything, 42/31s approaches.
     var match1 = false
     var match2 = false
@@ -173,21 +186,27 @@ fun main() {
     var count31 = 0
     if (word.length.rem(baseLen) != 0) {
       // All of the 42/31 pieces have baseLen characters
-      println("Not a multiple of $baseLen")
+      //println("Not a multiple of $baseLen")
       continue
     }
     var i = 0
     // some number of 42s, then an even number of 42 and 31s.
+
+    // Consume as many 42s as possible.
     while (i < word.length) {
       if (fortyTwoMatches.contains(word.substring(i, i + baseLen))) {
+      // Alternative: if (fortyTwo.match(word.substring(i, i + baseLen))) {
         i += baseLen
         count42 += 1
       } else {
         break
       }
     }
+
+    // Then as many 31s as possible.
     while (i < word.length) {
       if (thirtyOneMatches.contains(word.substring(i, i + baseLen))) {
+      // Alternative: if (thirtyOne.match(word.substring(i, i + baseLen))) {
         i += baseLen
         count31 += 1
       } else {
@@ -195,26 +214,26 @@ fun main() {
       }
     }
     if (i != word.length) {
-      println("Didn't consume the whole string")
+      //println("Didn't consume the whole string")
       continue
     }
-
-    if (count31 > count42) {
-      println("31>42")
+    if (count31 >= count42) {
+      //println("Need more 42s than 31s")
       continue
     }
     if (count42 == 0) {
-      println("No 42s")
+      //println("No 42s")
       continue
     }
     if (count31 == 0) {
-      println("No 31s")
+      //println("No 31s")
       continue
     }
 
-    println("$word: $count42 42s then $count31 31s")
+    // 42/31s approach.
     count3 += 1
     match3 = true
+    println(word)
 
     // Recursive matching approach.
     if (zerothRule.match(word)) {
@@ -229,9 +248,7 @@ fun main() {
     }
 
     // Values for recursive matching, generate everything, 42/31s approaches.
-    println("$word, $match1, $match2, $match3")
+    println("$word, Part1: $match1, $match2, Part2: $match3")
   }
-  // 316 too high
-  // 293 also wrong.
-  println("There were $count1 or $count2 or $count3 matches")
+  println("There were Part1: $count1 or $count2 or Part2: $count3 matches")
 }
