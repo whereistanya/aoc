@@ -9,49 +9,41 @@ class Rule(name: String) {
   var matched = mutableMapOf<String, Boolean>()
   var matches = mutableListOf<List<Rule>>()
   var letter:String = ""
-  var found = mutableListOf<String>()
+  var found = mutableSetOf<String>()
 
-  fun generateMatches(): List<String> {
-    //println("Generating matches for $name")
-    if (letter != "") {
-      return listOf<String>(letter)
+  // Approach 1: generate all possible values. Also used in approach 3.
+  fun generateMatches(): MutableSet<String> {
+    if (this.found.size > 0) {
+      return this.found.toMutableSet()
     }
-    var found = mutableListOf<String>()
+    if (letter != "") {
+      return mutableSetOf<String>(letter)
+    }
     for (ruleGroup in matches) {
       if (ruleGroup.size == 1) {
-        // 8: 42 | 42 8
-        //if (this.name == '8')
-        // Add this same thing a bunch of times
         for (i in ruleGroup[0].generateMatches()) {
-          found.add(i)
+          this.found.add(i)
         }
         continue
       }
-      val first = ruleGroup[0]
-      val second = ruleGroup[1]
 
-      var firstMatches = first.generateMatches()
-      var secondMatches = second.generateMatches()
-
+      var firstMatches = ruleGroup[0].generateMatches()
+      var secondMatches = ruleGroup[1].generateMatches()
       for (i in firstMatches) {
         for (j in secondMatches) {
           var s: String = "$i$j"
-          // if (this.name == "11") {
           found.add(s)
-          //println(s)
         }
       }
     }
-    return found.toList()
+    return found.toMutableSet() // to make sure it's a copy
   }
 
+  // Approach 2: match recursively. Sure doesn't work with infinite loops.
   fun match(word: String): Boolean {
-    //println("Does $word match rule $name ($matches)?")
     if (this.matched.containsKey(word)) {
-      //println("Returned ${this.matched[word]!!} from cache!")
       return this.matched[word]!!
     }
-    //println("$word isn't cached. Matching against ${matches}")
     for (ruleGroup in matches) {
       if (word.length < ruleGroup.size) {
         //println("$word is too short for this $ruleGroup to match")
@@ -63,7 +55,6 @@ class Rule(name: String) {
         exitProcess(1)
       }
       if (ruleGroup.size == 1) {
-        //println("Only matches one: recursing")
         if (ruleGroup[0].match(word)) {
           return true
         } else {
@@ -76,10 +67,8 @@ class Rule(name: String) {
       var pieceSize = 1
       while(pieceSize < word.length) {
         if (first.match(word.substring(0, pieceSize))) {
-          //println("${word.substring(0, pieceSize)} matches $name!")
           if (second.match(word.substring(pieceSize))) {
             this.matched[word] = true
-            //println("${word.substring(pieceSize)} also matches $name!")
             return true
           }
         }
@@ -93,10 +82,11 @@ class Rule(name: String) {
   }
 
   override fun toString(): String {
-    //return "[$name :Matches: ${matches.size} rules.Matched ${matched} strings.]"
     return "[$name]"
   }
 }
+
+
 
 fun main() {
   val fileName = "input19.txt"
@@ -122,6 +112,7 @@ fun main() {
   val rules = mutableMapOf<String, Rule>()
   val words = mutableListOf<String>()
 
+  // Parse the input.
   for (line in lines) {
     if (line.contains(":")) {
       // It's a rule!
@@ -153,28 +144,94 @@ fun main() {
       words.add(line)
     }
   }
+
+  // Getting results in three ways.
+  // Part 1
   var count1 = 0
   var count2 = 0
+  // Part 2
+  var count3 = 0
+
   var zerothRule = rules["0"]!!
+  val fortyTwo = rules["42"]!!
+  val thirtyOne = rules["31"]!!
   var matched = zerothRule.generateMatches()
+  val fortyTwoMatches = fortyTwo.generateMatches()
+  val thirtyOneMatches = thirtyOne.generateMatches()
+  val baseLen = 8 // 5 for test input, 8 for real
+
+  println("Intersection = ${fortyTwoMatches.intersect(thirtyOneMatches)}")
+  // No intersection, so if we match one, we don't match the other.
 
   for (word in words) {
+    // Values for recursive matching, generate everything, 42/31s approaches.
     var match1 = false
     var match2 = false
+    var match3 = false
 
+    var count42 = 0
+    var count31 = 0
+    if (word.length.rem(baseLen) != 0) {
+      // All of the 42/31 pieces have baseLen characters
+      println("Not a multiple of $baseLen")
+      continue
+    }
+    var i = 0
+    // some number of 42s, then an even number of 42 and 31s.
+    while (i < word.length) {
+      if (fortyTwoMatches.contains(word.substring(i, i + baseLen))) {
+        i += baseLen
+        count42 += 1
+      } else {
+        break
+      }
+    }
+    while (i < word.length) {
+      if (thirtyOneMatches.contains(word.substring(i, i + baseLen))) {
+        i += baseLen
+        count31 += 1
+      } else {
+        break
+      }
+    }
+    if (i != word.length) {
+      println("Didn't consume the whole string")
+      continue
+    }
+
+    if (count31 > count42) {
+      println("31>42")
+      continue
+    }
+    if (count42 == 0) {
+      println("No 42s")
+      continue
+    }
+    if (count31 == 0) {
+      println("No 31s")
+      continue
+    }
+
+    println("$word: $count42 42s then $count31 31s")
+    count3 += 1
+    match3 = true
+
+    // Recursive matching approach.
     if (zerothRule.match(word)) {
       match1 = true
       count1 += 1
     }
+
+    // Generate everything approach.
     if (word in matched) {
       match2 = true
       count2 += 1
     }
-    if (match1 != match2) {
-      println("Bad: $word, $match1, $match2")
-    } else {
-      println("Good: $word, $match1, $match2")
-    }
+
+    // Values for recursive matching, generate everything, 42/31s approaches.
+    println("$word, $match1, $match2, $match3")
   }
-  println("There were $count1 or $count2 matches")
+  // 316 too high
+  // 293 also wrong.
+  println("There were $count1 or $count2 or $count3 matches")
 }
