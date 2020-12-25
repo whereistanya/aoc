@@ -1,103 +1,113 @@
 #!/usr/bin/env python
+# AoC 2020 day 23.
 
-
-class Circle(object):
-  def __init__(self, initial):
-    self.values = [int(x) for x in initial] # ??increases in size, we X out removed things
-    self.current = 0
-    self.moves = 1
-    self.minimum = min(self.values)
-    self.maximum = max(self.values)
-
-  def getByIndex(self, index):  # Returns a label
-    return self.values[(index % len(self.values))]
-
-  def getByLabel(self, value):  # Returns an index
-    for i in range(len(self.values)):
-      if self.values[i] == value:
-        return i
-    print ("ERROR: didn't find %d" % value)
-
-  def addAtIndex(self, index, value):
-    self.values.insert(index, value)
-  
-  def moveForwardsFrom(self, index): # Returns an index
-    forward = index + 1
-    if forward >= len(self.values):
-      forward = 0
-    return forward
-
-  def minusOne(self, value):
-    smaller = value - 1
-    if smaller < self.minimum:
-      smaller = self.maximum
-    return smaller
-
-  """
-  def deleteByIndexes(self, indexes):
-    indexesToDelete = []
-    for index in indexes:
-      indexesToDelete.append(index % len(self.values))
-    print "deleting", sorted(indexesToDelete)[::-1]
-    for index in sorted(indexesToDelete)[::-1]:
-      print "deleting index", index
-      del(self.values.remove(index)
-      print "now have", self.values
-   """
-
-  def moveBackFrom(self, index): # Returns an index
-    back = index - 1
-    if back < 0:
-      back = len(self.values) - 1
-    return back
-
-  def move(self):
-    print ("- - Move %d - - " % self.moves)
-    # edits cups in place
-    currentIndex = self.current
-    currentValue = self.getByIndex(currentIndex)
-    print ("Cups: %s" % self.values)
-    print ("Current: %d" % currentValue)
-    toMove = [self.getByIndex(x) for x in [currentIndex + 1, currentIndex + 2,
-                                           currentIndex + 3]]
-    print ("Pick up %s" % toMove)
-    for number in toMove:
-      self.values.remove(number)
-    #self.deleteByIndexes([currentIndex + 1, currentIndex + 2, currentIndex + 3])
-    print ("Postdel: %s" % self.values)
-
-    destinationValue = self.minusOne(currentValue)
-    while (destinationValue in toMove):
-      print("Moving back from %d" % destinationValue)
-      destinationValue = self.minusOne(destinationValue)
-    destinationIndex = self.getByLabel(destinationValue)
-    print ("Destination: %d at index %d" % (destinationValue, destinationIndex))
-
-    for i in range(1, len(toMove) + 1):
-      self.addAtIndex(destinationIndex + i, toMove[i - 1])
-      
-    currentIndex = self.getByLabel(currentValue)
-    self.current = self.moveForwardsFrom(currentIndex)
-    self.moves += 1
-
+class Cup(object):
+  def __init__(self, label):
+    self.label = label
+    self.next = None
 
   def __repr__(self):
-    return ",".join([str(x) for x in self.values])
+    return "[%s->%s]" % (self.label, self.next.label)
+
+class Circle(object):
+  def __init__(self):
+    self.current = None  # Cup
+    self.moves = 0
+    self.cups = {}  # label: Cup
+    self.meximum = 0
+
+  def __repr__(self):
+    if len(self.cups) > 1000:
+      return "Circle with %d cups and current index %s" % (
+        len(self.cups), self.current.label)
+
+    cup = self.current
+    s = ""
+    for i in range(self.maximum):
+      s += "%s" % (cup.label)
+      cup = cup.next
+    return s
+
+
+  def move(self):
+    #print ("- - Move %d - - " % self.moves)
+    cup1 = self.current.next
+    cup2 = cup1.next
+    cup3 = cup2.next
+
+    self.current.next = cup3.next # Remove them
+
+    destinationLabel = self.current.label - 1
+    if destinationLabel <= 0:
+      destinationLabel = self.maximum
+    while destinationLabel in [cup1.label, cup2.label, cup3.label]:
+      destinationLabel -= 1
+      if destinationLabel <= 0:
+        destinationLabel = self.maximum
+    destinationCup = self.cups[destinationLabel]
+
+    afterDest = destinationCup.next
+    destinationCup.next = cup1
+    cup3.next = afterDest
+
+    self.current = self.current.next
+    self.moves += 1
+
+# Main
 
 # Real data
 initial = "784235916"
 
 # Test data
-initial = "389125467"
+#initial = "389125467"
 
-circle = Circle(initial)
-for i in range(100):
-  print(circle)
+labels = [int(x) for x in initial]
+
+circle = Circle()
+circle.current = Cup(labels[0])
+circle.cups[labels[0]] = circle.current
+previous = circle.current
+
+# Initialise the part 1 data
+for i in range(1, 9):
+  cup = Cup(labels[i])
+  circle.cups[labels[i]] = cup
+  previous.next = cup
+  previous = cup
+
+previous.next = circle.current
+circle.maximum = len(circle.cups)
+
+for i in range(11):
   circle.move()
 
-listPieces = "".join([str(x) for x in circle.values]).split("1")
-part1 = listPieces[1] + listPieces[0]
+print ("Part 1: %s" % circle)
 
-print(part1)
+# Part 2
+# Reset
+circle.cups = {}
+circle.current = Cup(labels[0])
+circle.cups[labels[0]] = circle.current
+previous = circle.current
 
+for i in range(1, 9):
+  cup = Cup(labels[i])
+  circle.cups[labels[i]] = cup
+  previous.next = cup
+  previous = cup
+
+for i in range(10, 1000001):
+  cup = Cup(i)
+  circle.cups[i] = cup
+  previous.next = cup
+  previous = cup
+
+previous.next = circle.current
+circle.maximum = len(circle.cups)
+
+for i in range(10000001):
+  circle.move()
+
+print ("Part 2: %d" % (
+  circle.cups[1].next.label * circle.cups[1].next.next.label))
 
