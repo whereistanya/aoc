@@ -2,6 +2,8 @@
 
 import struct # for unpacking the binary integers
 
+import disassembler
+
 class Computer(object):
   def __init__(self):
     self.memory = [0] * 32768
@@ -43,6 +45,9 @@ class Computer(object):
     code = struct.unpack('<' + ('H' * numberCount), binary)
     for i in range(0, len(code) - 1):
       self.memory[i] = code[i]
+
+  def disassemble(self):
+    disassembler.disassemble(self.memory)
 
   def run(self):
     while True:
@@ -337,6 +342,7 @@ with open("challenge.bin", "rb") as f:
 
 computer = Computer()
 computer.setCode(binary)
+computer.disassemble()
 # To run the tests, comment the setCode above, uncomment these
 #computer.registers[1] = 61
 #x=[9,32768,32769,4,19,32768]
