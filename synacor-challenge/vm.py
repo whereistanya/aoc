@@ -3,6 +3,7 @@
 import struct # for unpacking the binary integers
 
 import disassembler
+import mud
 
 class Computer(object):
   def __init__(self):
@@ -262,6 +263,8 @@ class Computer(object):
     be assumed that once input starts, it will continue until a newline is
     encountered; this means that you can safely read whole lines from the
     keyboard and trust that they will be fully read
+
+    Type 'go' to solve the text adventure.
     """
     a = self.memory[self.index + 1] 
     # TODO: might it not be a register?
@@ -269,58 +272,7 @@ class Computer(object):
     if self.lineindex >= len(self.line):
       self.line = input("=> ")
       if self.line == "go":
-        self.line = """
-take tablet
-doorway
-north
-north
-bridge
-continue
-down
-east
-take empty lantern
-west
-west
-passage
-ladder
-west
-south
-north
-take can
-use can
-use lantern
-west
-ladder
-darkness
-continue
-west
-west
-west
-west
-north
-take red coin
-north
-east
-take concave coin
-down
-take corroded coin
-up
-west
-west
-take blue coin
-up
-take shiny coin
-down
-east
-use blue coin
-use red coin
-use shiny coin
-use concave coin
-use corroded coin
-north
-take teleporter
-use teleporter
-"""
+        self.line = mud.solve_puzzle()
       self.line += '\n'
       self.lineindex = 0
     self.registers[register] = ord(self.line[self.lineindex])
@@ -344,7 +296,7 @@ computer = Computer()
 computer.setCode(binary)
 computer.disassemble()
 # To run the tests, comment the setCode above, uncomment these
-#computer.registers[1] = 61
+#computer.registers[7] = 6161
 #x=[9,32768,32769,4,19,32768]
 #for i in range(len(x)):
 #  computer.memory[i] = x[i]
