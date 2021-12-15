@@ -45,7 +45,7 @@ zg-he
 pj-fs
 start-RW""".split("\n")
 
-lines = test1()
+#lines = test3()
 print (lines)
 
 class Cave(object):
@@ -81,20 +81,32 @@ for cave in caves.values():
   print(cave)
 print()
 
-def move(a, seen):
+def move(a, seen, special_used, part2=False):
   if a.name == "end":
-    print "end!", seen
     return 1
   edges = a.edges
   paths_from_here = 0
+  dupe_options = []
   for edge in edges:
+
     if edge.name in seen and edge.size == "small":
+      if edge.name == "start":
+        continue
+      if not special_used:
+        dupe_options.append(edge)
       continue
     seen.append(edge.name)
-    paths_from_here += move(edge, seen)
+    paths_from_here += move(edge, seen, special_used, part2)
     seen.pop()
+
+  if part2:
+    if not special_used:
+      for special in dupe_options:
+        seen.append(special)
+        paths_from_here += move(special, seen, True)
+        seen.pop()
   return paths_from_here
 
 start = caves["start"]
-print(move(start, ["start"]))
-
+print(move(start, ["start"], False, part2=False))
+print(move(start, ["start"], False, part2=True))
