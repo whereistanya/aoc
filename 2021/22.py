@@ -46,6 +46,7 @@ class Cuboid(object):
     self.maxx = maxx
     self.maxy = maxy
     self.maxz = maxz
+    self.deleted = False
 
   def contains(self, other):
     if self.maxx < other.maxx:
@@ -139,16 +140,28 @@ class Cuboid(object):
     x = self.overlap_x(other)
     if x:
       #print("Should split x at %d" % x)
-      return self.splitx(x)
+      return self.splitx(x), None
     y = self.overlap_y(other)
     if y:
       #print("Should split y at %d" % y)
-      return self.splity(y)
+      return self.splity(y), None
     z = self.overlap_z(other)
     if z:
       #print("Should split z at %d" % z)
-      return self.splitz(z)
-    return None
+      return self.splitz(z), None
+    x = other.overlap_x(self)
+    if x:
+      #print("Should split x at %d" % x)
+      return None, other.splitx(x)
+    y = other.overlap_y(self)
+    if y:
+      #print("Should split y at %d" % y)
+      return None, other.splity(y)
+    z = other.overlap_z(self)
+    if z:
+      #print("Should split z at %d" % z)
+      return None, other.splitz(z)
+    return None, None
 
   def same(self, other):
     if (self.minx == other.minx and self.maxx == other.maxx and
@@ -168,45 +181,56 @@ class CuboidGroup(object):
     self.action = action
 
 def dedupe(groups):
-  found = False
+  # algorithm:
+  # place the first group of cuboids (which will contain 1)
+  # for each of the second group, if it overlaps with something in the
+  # first group, split something, either group. If a cuboid completely
+  # overwrites an old cuboid, delete the old one.
+  # we don't iterate through the real groups, we make a copy.
+
   for i in range(len(groups)):
     group = groups[i]
     action = group.action
     print("\n\nStarting group %d of %s" % (i, len(groups)))
-    to_check = deque(group.cuboids)
-    while to_check:
-      #print("%d groups to check in here" % len(to_check))
-      cuboid = to_check.pop()
-      #print("*** Checking %s" % cuboid)
+    to_place = deque(group.cuboids)
+    while to_place:
+      cuboid = to_place.pop()
+      print("*** Placing %s" % cuboid)
+
       # check against every other group
-      for j in range(0, i):
-        othergroup = groups[j] # only looking at the ones we've already passed
-        if group.action == othergroup.action:
-          continue  # don't need to change it so who cares
-      #for othergroup in groups:
-      # Next steps
-      # TODO: if doing it this way, need to split othergroup here too if needed
-      # TODO: also cover the case where one group subsumes another
+      for othergroup in groups[0:i]: # grab a copy of the groups placed so far.
+                                   # Some of them may change in this round.
+        othercuboids = deque(othergroup.cuboids)
+        while othercuboids:
+          #print("Checking against %s" % len(othercuboids))
+          other = othercuboids.pop()
+          if other.deleted:
+            continue
+          if cuboid.same(other):
+            other.deleted = True
+            print ("They're the same cuboid.")
+            continue
+          added_self = []
+          added_other = []
+          while True:
+            split_self, split_other = cuboid.split_if_overlap(other)
+            if split_self:
+              print("Splitting self into %s and %s" % (cuboid, split_self))
+              added_self.append(split_self)
+              to_place.appendleft(split_self) # do it next
+            elif split_other:
+              print("Splitting other into %s and %s" % (cuboid, split_other))
+              added_other.append(split_other)
+              othercuboids.appendleft(split_other) # do it next
+            else:
+              print("Adding", added_self, added_other )
+              group.cuboids.extend(added_self)
+              othergroup.cuboids.extend(added_other)
+              break
 
         #print ("Checking group %d: %s" % (othergroup.name, othergroup.cuboids))
-        if group == othergroup:
-          continue
-        for other in othergroup.cuboids:
-          #print("Self: %s, Other: %s" % (cuboid, other))
-          if cuboid.same(other):
-            continue
-          while True:
-            split = cuboid.split_if_overlap(other)
-            if split:
-              #print("Splitting into %s and %s" % (cuboid, split))
-              group.cuboids.append(split)
-              to_check.append(split)
-              to_check.append(cuboid) # check it again
-              found = True
-            else:
-              break
-      # when we leave here, nothing in this group should have remaining places it can helpfully split
-  return found
+        #print("Self: %s, Other: %s" % (cuboid, other))
+
 
 groups =  []
 for i in range(0, len(lines)):
@@ -223,10 +247,14 @@ for i in range(0, len(lines)):
   group = CuboidGroup(i, Cuboid(minx, maxx, miny, maxy, minz, maxz), action)
   groups.append(group)
 
-i = 0
-while True:
-  found = dedupe(groups)
-  i += 1
-  if not found:
-    break
-print("Finished removing overlaps after %d iterations." % i)
+dedupe(groups)
+
+#print ("Second run should be empty...\n\n\n")
+#dedupe(groups)
+
+for group in groups:
+  print ("*** %s (%s)" % (group.name, group.action))
+  for cuboid in group.cuboids:
+    print (cuboid)
+    if cuboid.deleted:
+      print ("deleted")
