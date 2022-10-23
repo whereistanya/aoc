@@ -1,10 +1,12 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 from collections import deque
+from enum import Enum
 
+Axis = Enum("Axis", "X Y Z")
 
 class Cuboid(object):
-  # min and max are inclusive
+  # from min to max-1 inclusive
   def __init__(self, minx, maxx, miny, maxy, minz, maxz):
     self.minx = minx
     self.miny = miny
@@ -15,8 +17,8 @@ class Cuboid(object):
     self.on = False # default
 
   def volume(self):
-    return ((self.maxx + 1 - self.minx) * (self.maxy + 1 - self.miny) *
-            (self.maxz + 1 - self.minz))
+    return ((self.maxx - self.minx) * (self.maxy - self.miny) *
+            (self.maxz - self.minz))
 
 
   def overlap(self, other):
@@ -39,10 +41,10 @@ class Cuboid(object):
     #print("Self: minx:%s, maxx:%s" % (minx1, maxx1))
     #print("Other: minx:%s, maxx:%s" % (minx2, maxx2))
 
-    if minx2 > maxx1 or miny2 > maxy1 or minz2 > maxz1:
+    if minx2 >= maxx1 or miny2 >= maxy1 or minz2 >= maxz1:
       return None
 
-    if minx1 > maxx2 or miny1 > maxy2 or minz1 > maxz2:
+    if minx1 >= maxx2 or miny1 >= maxy2 or minz1 >= maxz2:
       return None
 
     # So it's overlapping.
@@ -57,6 +59,84 @@ class Cuboid(object):
 
     return Cuboid(minx, maxx, miny, maxy, minz, maxz)
 
+  def dimensions(self):
+    return (self.minx, self.maxx, self.miny, self.maxy, self.minz, self.maxz)
+
+
+  def subtract(self, to_remove):
+    """Subtract a cuboid from this one.
+    Return all new cuboids created. Assume this one will be GCed afterwards.
+
+    Args:
+      to_remove: (Cuboid) a single cuboid to be subtracted from this one
+    Return:
+      [Cuboid, ...] A list of cuboids that remain when to_remove is gone.
+    """
+    print("** Removing %s from %s" % (to_remove, self))
+
+    newboids = []
+
+    # Slice off and retain the left hand slab, if it exists.
+    c, remainder = self.splitx(to_remove.minx)
+    if c:
+      newboids.append(c)
+      print("X1: Sliced off %s, leaving %s" % (c, remainder))
+    else:
+      print ("X1: Didn't get anything")
+      
+    # Slice off and retain the right hand slab of what's left, if it exists
+    remainder, c = remainder.splitx(to_remove.maxx)
+    if c:
+      newboids.append(c)
+      print("X2: Sliced off %s, leaving %s" % (c, remainder))
+    else:
+      print ("X2: Didn't get anything")
+
+    c, remainder = remainder.splity(to_remove.miny)
+    if c:
+      newboids.append(c)
+      print("Y1: Sliced off %s, leaving %s" % (c, remainder))
+    else:
+      print ("Y1: Didn't get anything")
+
+    remainder, c = remainder.splity(to_remove.maxy)
+    if c:
+      newboids.append(c)
+      print("Y2: Sliced off %s, leaving %s" % (c, remainder))
+    else:
+      print ("Y2: Didn't get anything")
+
+    c, remainder = remainder.splitz(to_remove.minz)
+    if c:
+      newboids.append(c)
+      print("Z1: Sliced off %s, leaving %s" % (c, remainder))
+    else:
+      print ("Z1: Didn't get anything")
+
+    remainder, c = remainder.splitz(to_remove.maxz)
+    if c:
+      newboids.append(c)
+      print("Z2: Sliced off %s, leaving %s" % (c, remainder))
+    else:
+      print ("Z2: Didn't get anything")
+
+    # TODO: the remainder should be all overlap
+    # print ("The remainder is", remainder)
+    return newboids
+
+    # split before minx, after miny, etc.
+    #for dimension in to_remove.dimensions():
+    #  value, axis = dimension
+    #  if axis == Axis.X:
+    #    c1, c2 = self.splitx(value)
+    #  elif axis == Axis.Y:
+    #    c1, c2 = self.splity(value)
+    #  elif axis == Axis.Z:
+    #    c1, c2 = self.splitz(value)
+    #  else:
+    #    print("ERROR: weird axis %s" % axis)
+
+
   def subtract_all(self, to_remove):
     """Remove a set of cuboids from this one, splitting this one into
        multiple pieces if needed. Return the pieces."""
@@ -67,34 +147,50 @@ class Cuboid(object):
 
 
   def splitx(self, x):
-    """Splits self. Returns a new cuboid with everything past the split point.
+    """Splits self along the x axis at x. Returns the two new cuboids (left,
+    right). Does not modify self. GC happens elsewhere.
+    The cuboid goes from min to max - 1 inclusive. A split can't put the same
+    x in both cubes
     """
-    if x < self.minx or x > self.maxx:
-      print("BUG: unexpected value %d" % x)
-      exit(1)
-    other = Cuboid(x + 1, self.maxx, self.miny, self.maxy, self.minz, self.maxz)
-    self.maxx = x
-    return other
+    print("Splitting %s along %s" % (self, x))
+    if x <= self.minx:
+      return None, self
+    if x >= self.maxx:
+      return self, None
+
+    # So we're actually splitting.
+    left = Cuboid(self.minx, x, self.miny, self.maxy, self.minz, self.maxz)
+    right = Cuboid(x, self.maxx, self.miny, self.maxy, self.minz, self.maxz)
+    return left, right
 
   def splity(self, y):
-    """Splits self. Returns a new cuboid with everything past the split point.
+    """Splits self along the y axis at y. Returns the two new cuboids (top,
+    bottom). Does not modify self. GC happens elsewhere.
     """
-    if y < self.miny or y > self.maxy:
-      print("BUG: unexpected value %d" % y)
-      exit(1)
-    other = Cuboid(self.minx, self.maxx, y + 1, self.maxy, self.minz, self.maxz)
-    self.maxy = y
-    return other
+    if y <= self.miny:
+      return None, self
+    if y >= self.maxy:
+      return self, None
+
+    # So we're actually splitting.
+    top = Cuboid(self.minx, self.maxx, self.miny, y, self.minz, self.maxz)
+    bottom = Cuboid(self.minx, self.maxx, y, self.maxy, self.minz, self.maxz)
+    return top, bottom
 
   def splitz(self, z):
-    """Splits self. Returns a new cuboid with everything past the split point.
+    """Splits self along the z axis at z. Returns the two new cuboids (front,
+    back). Does not modify self. GC happens elsewhere.
     """
-    if z < self.minz or z > self.maxz:
-      print("BUG: unexpected value %d" % z)
-      exit(1)
-    other = Cuboid(self.minx, self.maxx, self.miny, self.maxy, z + 1, self.maxz)
-    self.maxz = z
-    return other
+    if z <= self.minz:
+      return None, self
+    if z >= self.maxz:
+      return self, None
+
+    # So we're actually splitting.
+    front = Cuboid(self.minx, self.maxx, self.miny, self.maxy, self.minz, z)
+    back = Cuboid(self.minx, self.maxx, self.miny, self.maxy, z, self.maxz)
+    return front, back
+
 
 
   def same(self, other):
@@ -162,7 +258,7 @@ def create(lines):
     else:
       print("Error: onoff is %s" % onoff)
       exit()
-    newboid = Cuboid(minx, maxx, miny, maxy, minz, maxz)
+    newboid = Cuboid(minx, maxx + 1, miny, maxy + 1, minz, maxz + 1)
     newboid.on = is_on
     cuboids.append(newboid)
   return cuboids
@@ -172,24 +268,39 @@ def create(lines):
 def test():
   lines = testsmall()
   cuboids = create(lines)
+  assert (cuboids[0].volume() == 27)
+  assert (cuboids[1].volume() == 27)
 
   newboid = cuboids[0].overlap(cuboids[1])
   assert(newboid.volume() == 8)
+
+  remainder = cuboids[0].subtract(newboid)
+  assert(sum([x.volume() for x in remainder]) == 19)
+
   newboid = cuboids[1].overlap(cuboids[0])
   assert(newboid.volume() == 8)
 
   newboid = cuboids[0].overlap(cuboids[2])
   assert(newboid.volume() == 8)
+
   newboid = cuboids[2].overlap(cuboids[0])
   assert(newboid.volume() == 8)
 
   newboid = cuboids[0].overlap(cuboids[3])
   assert(newboid.volume() == 1)
-  newboid = cuboids[3].overlap(cuboids[0])
-  assert(newboid.volume() == 1)
+
+  assert (cuboids[3].volume() == 1)
+  overlap = cuboids[3].overlap(cuboids[0])
+  assert(overlap.volume() == 1)
+
+  remainder = cuboids[0].subtract(overlap)
+  assert(sum([x.volume() for x in remainder]) == 26)
+  remainder = cuboids[3].subtract(overlap)
+  print("remainders", remainder)
 
   newboid = cuboids[1].overlap(cuboids[3])
   assert(not newboid)
+
   newboid = cuboids[3].overlap(cuboids[1])
   assert(not newboid)
 
@@ -198,9 +309,24 @@ def test():
   newboid = cuboids[3].overlap(cuboids[2])
   assert(newboid.volume() == 1)
 
+  firstboid = Cuboid(0, 3, 0, 3, 0, 3)
+  left, right = firstboid.splitx(1)
+  assert(left.dimensions() == (0, 1, 0, 3, 0, 3)), left.dimensions()
+  assert(right.dimensions() == (1, 3, 0, 3, 0, 3)), right.dimensions()
+
+  top, bottom = firstboid.splity(2)
+  assert(bottom.dimensions() == (0, 3, 2, 3, 0, 3)), bottom.dimensions()
+  assert(top.dimensions() == (0, 3, 0, 2, 0, 3)), top.dimensions()
+
+  front, back = firstboid.splitz(3)
+  assert(front.dimensions() == (0, 3, 0, 3, 0, 3)), front.dimensions()
+  assert(not back), back
+
   print ("PASS")
 
-#test()
+test()
+
+exit()
 
 on_cuboids = set()
 lines = testsmall()[0:4]
