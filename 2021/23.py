@@ -39,20 +39,13 @@ class Burrow(grid.Grid): # grid is only used for drawing; it's a convenient hack
     self.deepest = 0 # will be set by init_pods
     self.init_pods()
 
-  def move(self, move_from, move_to):
-    from_x, from_y = move_from
-    to_x, to_y = move_to
-    pod = self.pods[move_from]
-    self.grid[move_from].value = '.'
-    self.grid[move_to].value = pod.pod_type
-    self.pods.pop(move_from)
-    self.pods[move_to] = pod
-
   def init_pods(self):
     pod_index = 0
+    pod_number = {'A': 0, 'B': 0, 'C': 0, 'D': 0}
     for point in self.grid.values():
       if point.value in ['A', 'B', 'C', 'D']:
-        name = "%s%d" % (point.value, pod_index)
+        name = "%s%d" % (point.value, pod_number[point.value])
+        pod_number[point.value] += 1
         pod_index += 1
         self.pods[(point.x, point.y)] = Pod(name)
         if point.y > self.deepest:
@@ -63,6 +56,15 @@ class Burrow(grid.Grid): # grid is only used for drawing; it's a convenient hack
       if location[0] != pod.validx:
         return False
     return True
+
+  def move(self, move_from, move_to):
+    from_x, from_y = move_from
+    to_x, to_y = move_to
+    pod = self.pods[move_from]
+    self.grid[move_from].value = '.'
+    self.grid[move_to].value = pod.pod_type
+    self.pods.pop(move_from)
+    self.pods[move_to] = pod
 
   def move_room_to_room(self, initialx, pod, initial_cost):
     home_move = self.move_into_a_room(initialx, pod)
@@ -103,7 +105,7 @@ class Burrow(grid.Grid): # grid is only used for drawing; it's a convenient hack
     cost = 0
     for i in range(min(x, pod.validx), max(x, pod.validx) + 1):
       if i == x:
-        continue # ignore if it's itself; TODO: replace this
+        continue # ignore if it's itself; TODO: ugh, replace this
       cost += pod.cost
       if (i, 1) in self.pods: # path is blocked
         return None # can't get to the room
@@ -127,10 +129,12 @@ class Burrow(grid.Grid): # grid is only used for drawing; it's a convenient hack
     return False
 
   def in_room(self, location):
-    rooms = [(3, 2), (3, 3), (5, 2), (5, 3), (7, 2), (7, 3), (9, 2), (9, 3)]
-    if location not in rooms:
-      return False
-    return True
+    validx = [3, 5, 7, 9]
+    validy = [x for x in range(2, self.deepest + 1)]
+    x, y = location
+    if x in validx and y in validy:
+      return True
+    return False
 
   def possible_moves(self):
     moves = []
@@ -143,12 +147,13 @@ class Burrow(grid.Grid): # grid is only used for drawing; it's a convenient hack
 
       # If it's in the right place, don't move it
       if x == pod.validx:
-        if y == 3: # don't move
+        valid = True
+        for i in range(y, self.deepest + 1):
+          neighbour = self.pods[(x, i)]
+          if x != neighbour.validx:
+            valid = False
+        if valid:
           continue
-        if y == 2: # don't move if the upstairs neighbour is also ok
-          neighbour = self.pods[(x, 3)]
-          if x == neighbour.validx:
-            continue
 
       # If it can go into a room, don't collect possible moves, move it next
       if self.in_valid_hallspace(location):
@@ -205,6 +210,16 @@ def test2():
   #########""".split("\n")
   return lines
 
+def test3():
+  lines = """#############
+#...........#
+###B#C#B#D###
+  #D#C#B#A#
+  #D#B#A#C#
+  #A#D#C#A#
+  #########""".split("\n")
+  return lines
+
 def real():
   lines="""#############
 #...........#
@@ -213,7 +228,18 @@ def real():
   #########""".split("\n")
   return lines
 
-lines = real()
+def real2():
+  lines="""#############
+#...........#
+###B#B#D#A###
+  #D#C#B#A#
+  #D#B#A#C#
+  #D#C#A#C#
+  #########""".split("\n")
+  return lines
+
+
+lines = real2()
 pods = []
 
 burrow = Burrow(lines)
