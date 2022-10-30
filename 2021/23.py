@@ -36,7 +36,8 @@ class Burrow(grid.Grid): # grid is only used for drawing; it's a convenient hack
   def __init__(self, lines):
     super().__init__(lines)
     self.pods = {} # (x, y): Pod
-    self.find_pods()
+    self.deepest = 0 # will be set by init_pods
+    self.init_pods()
 
   def move(self, move_from, move_to):
     from_x, from_y = move_from
@@ -47,13 +48,15 @@ class Burrow(grid.Grid): # grid is only used for drawing; it's a convenient hack
     self.pods.pop(move_from)
     self.pods[move_to] = pod
 
-  def find_pods(self):
+  def init_pods(self):
     pod_index = 0
     for point in self.grid.values():
       if point.value in ['A', 'B', 'C', 'D']:
         name = "%s%d" % (point.value, pod_index)
         pod_index += 1
         self.pods[(point.x, point.y)] = Pod(name)
+        if point.y > self.deepest:
+          self.deepest = point.y
 
   def sorted(self):
     for location, pod in self.pods.items():
@@ -61,22 +64,14 @@ class Burrow(grid.Grid): # grid is only used for drawing; it's a convenient hack
         return False
     return True
 
-  def valid_hallspace(self):
-    return [(1, 1), (2, 1), (4, 1), (6, 1), (8, 1), (10, 1), (11, 1)]
-
-  def in_hall(self, location):
-    if location in self.valid_hallspace():
-      return True
-    return False
-
-  def moves_in_hall_from_here(self, initialx, initial_cost, pod):
-    home_move = self.moves_into_rooms_from_here(initialx, pod)
+  def move_room_to_room(self, initialx, pod, initial_cost):
+    home_move = self.move_into_a_room(initialx, pod)
 
     if home_move: # Do it and nothing else
       destination, cost_from_here = home_move
-      moves = [(destination, initial_cost + cost_from_here)]
-      return moves
+      return (destination, initial_cost + cost_from_here)
 
+  def show_moves_into_hall(self, initialx, initial_cost, pod):
     y = 1
     moves = []
     cost = initial_cost
@@ -84,7 +79,7 @@ class Burrow(grid.Grid): # grid is only used for drawing; it's a convenient hack
       if (x, y) in self.pods:
         break
       cost += pod.cost
-      if (x, y) in self.valid_hallspace():
+      if self.in_valid_hallspace((x, y)):
         moves.append(((x, y), cost))
 
     cost = initial_cost
@@ -92,67 +87,59 @@ class Burrow(grid.Grid): # grid is only used for drawing; it's a convenient hack
       if (x, y) in self.pods:
         break
       cost += pod.cost
-      if (x, y) in self.valid_hallspace():
+      if self.in_valid_hallspace((x, y)):
         moves.append(((x, y), cost))
     return moves
 
-  def moves_into_rooms_from_here(self, x, pod):
-    destinationx = pod.validx
+  def move_into_a_room(self, x, pod):
+    # If there's a different letter anywhere in the space, we can't move in
+    for i in range(2, self.deepest + 1):
+      if (pod.validx, i) in self.pods:
+        inhabitant = self.pods[(pod.validx, i)]
+        if inhabitant.pod_type != pod.pod_type:
+          return None
 
-    if (destinationx, 2) in self.pods: # blocked, can't get in
-      return None
-
-    # is there a path to destinationx?
+    # If we can't get to the room, we can't move in either
     cost = 0
-    for i in range(min(x, destinationx), max(x, destinationx) + 1):
+    for i in range(min(x, pod.validx), max(x, pod.validx) + 1):
       if i == x:
-        continue # ignore if it's self; replace this
+        continue # ignore if it's itself; TODO: replace this
       cost += pod.cost
-      if (i, 1) in self.pods:
-        # path is blocked
-        return None # no moves
+      if (i, 1) in self.pods: # path is blocked
+        return None # can't get to the room
 
-    # if there's a different letter in (destinationx, 3), we can't move in
+    # Otherwise go as deep as possible
+    for i in range(self.deepest, 1, -1):
+      if (pod.validx, i) not in self.pods:
+        total_cost = cost + (pod.cost * (i - 1))
+        return ((pod.validx, i), total_cost)
 
-    if (destinationx, 3) not in self.pods: # it's available, move in
-      return ((destinationx, 3), cost + (pod.cost * 2)) # two final steps
+  def blocked_in_room(self, location):
+    x, y = location
+    for i in range(y - 1, 1, -1):
+      if (x, i) in self.pods:
+        return True # yes, blocked
 
-    # There's someone in 3, but we can try 2
-    inhabitant = self.pods[(destinationx, 3)]
-    if inhabitant.pod_type != pod.pod_type:
-      return None # no moves
-    # We're good to move in to 2
-    return((destinationx, 2), cost + pod.cost) # One final step
+  def in_valid_hallspace(self, location):
+    valid_hallspace = [(1, 1), (2, 1), (4, 1), (6, 1), (8, 1), (10, 1), (11, 1)]
+    if location in valid_hallspace:
+      return True
+    return False
 
-  def in_room_and_unblocked(self, location):
+  def in_room(self, location):
     rooms = [(3, 2), (3, 3), (5, 2), (5, 3), (7, 2), (7, 3), (9, 2), (9, 3)]
     if location not in rooms:
       return False
-    x = location[0]
-    y = location[1]
-
-    if y == 3: # the bottom of the room
-      if (x, 2) in self.pods: # something is in the way
-        return False
-
     return True
 
   def possible_moves(self):
-# 1. Amphipods can move up, down, left, or right so long as
-# they are moving into an unoccupied open space.
-# 2. Amphipods will never stop on the space immediately outside
-# any room.
-# 3. Amphipods will never move from the hallway into a room unless
-# that room is their destination room and that room contains no
-# amphipods which do not also have that room as their own destination.
-# 4. Once an amphipod stops moving in the hallway, it will stay in
-# that spot until it can move into a room.
-# Each amphipod gets to move at most twice: out of the
-# burrow into the hall, into the new burrow, or just
-# directly into the new burrow.
     moves = []
     for location, pod in self.pods.items():
       x, y = location
+
+      # If it's blocked, skip it
+      if self.blocked_in_room(location):
+        continue
 
       # If it's in the right place, don't move it
       if x == pod.validx:
@@ -163,27 +150,34 @@ class Burrow(grid.Grid): # grid is only used for drawing; it's a convenient hack
           if x == neighbour.validx:
             continue
 
-      moves_for_this_pod = []
-      x = location[0]
-      y = location[1]
+      # If it can go into a room, don't collect possible moves, move it next
+      if self.in_valid_hallspace(location):
+        valid_move = self.move_into_a_room(x, pod)
+        if valid_move:
+          new_location, cost = valid_move
+          # TODO: this return is too sneaky
+          return([Move(cost, pod, location, new_location)])
 
+      else:
+        assert(self.in_room(location))
+        initial_cost = (location[1] - 1) * pod.cost
 
-      if self.in_room_and_unblocked(location):
-        #print("In a room and unblocked")
-        if y == 2: # add 1 or 2 moves to get to the hall
-          initial_cost = pod.cost
-        elif y == 3:
-          initial_cost = pod.cost * 2
-        moves_for_this_pod = self.moves_in_hall_from_here(
+        # If it can go from one room to another, move it
+        valid_move = self.move_room_to_room(x, pod, initial_cost)
+        if valid_move:
+          new_location, cost = valid_move
+          # TODO: this return is also too sneaky
+          return([Move(cost, pod, location, new_location)])
+
+        # Finally, collect all the moves that take something into a hall
+        moves_for_this_pod = []
+        x, y = location
+
+        moves_for_this_pod = self.show_moves_into_hall(
           x, initial_cost, pod)
 
-      elif self.in_hall(location):
-        valid_move = self.moves_into_rooms_from_here(x, pod)
-        if valid_move:
-          moves_for_this_pod = [valid_move]
-
-      for new_location, cost in moves_for_this_pod:
-        moves.append(Move(cost, pod, location, new_location))
+        for new_location, cost in moves_for_this_pod:
+          moves.append(Move(cost, pod, location, new_location))
 
     return moves
 
@@ -211,8 +205,6 @@ def test2():
   #########""".split("\n")
   return lines
 
-
-
 def real():
   lines="""#############
 #...........#
@@ -225,8 +217,6 @@ lines = real()
 pods = []
 
 burrow = Burrow(lines)
-burrow.find_pods()
-
 burrow.printnocolor()
 
 def sort_pods(burrow, energy_so_far, least_energy, path, costs):
