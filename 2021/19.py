@@ -1,9 +1,9 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 from collections import defaultdict
 from collections import deque
 
-inputfile = "input.txt"
+inputfile = "input19.txt"
 with open(inputfile, "r") as f:
   lines = [x.strip() for x in f.readlines()]
 
@@ -205,9 +205,10 @@ def test2():
 class Beacon(object):
   def __init__(self, name, s, scanner):
     self.name = name
-    self.alteregos = {}  # scanner: coords
+    self.originally_seen_by = scanner
     self.x, self.y, self.z = [int(x) for x in s.split(",")]
-    self.scanner = scanner
+    self.seen_by = {}  # scanner: coords
+    self.seen_by[scanner] = (self.x, self.y, self.z)
     self.distances = {}
     self.distance_set = set()
 
@@ -215,22 +216,22 @@ class Beacon(object):
     s = "B%d(%s,%s,%s)" % (self.name, self.x, self.y, self.z)
     return s
 
-  def distance_from(self, other):
+  def record_distance_from(self, other):
     # tuple of the three distances away (x/y/z), sorted by length
     distance = tuple(sorted([abs(self.x - other.x), abs(self.y - other.y), abs(self.z - other.z)]))
     self.distances[other] = distance
-    self.distance_set.add(distance)
+    self.distance_set.add(distance) # TODO create it at the end from distances instead
 
 class Scanner(object):
   def __init__(self, name):
     self.name = name
-    self.beacons = []
+    self.beacons = [] # Beacon, ...
     self.distances = set()
 
   def __repr__(self):
     return ("Scanner%s(%d beacons)" % (self.name, len(self.beacons)))
 
-lines = test2()
+#lines = test2()
 
 scanners = []  # [Scanner, ...]
 beacons = []   # [Beacon, ...]
@@ -253,33 +254,46 @@ distance_count = defaultdict(int)
 
 # update beacons' distances from each other. Inefficient and clunky. Rewrite.
 for s in scanners:
-  print s
   for beacon_i in s.beacons:
     for beacon_j in s.beacons:
       if beacon_i == beacon_j:
         continue
-      distance = beacon_i.distance_from(beacon_j)
+      beacon_i.record_distance_from(beacon_j)
 
 
-matches = defaultdict(list)
+deduped = defaultdict(list)
 
+# Now cycle through all the beacons, looking at their distances to other
+# beacons. Two beacons that have an overlapping set of distances are probably
+# the same beacon.
 for i in beacons:
   found = False
-  for j in matches:
+  for j in deduped:
     if i == j:
       continue
     overlap = len(i.distance_set.intersection(j.distance_set))
 
     if overlap > 1:
-      print("%s and %s have %d in common" % (i, j, overlap))
-      matches[j].append(i)
-      j.alteregos[i.scanner] = (i.x, i.y, i.z)
+      # i and j are the same beacon. Combine them, keeping j (the one already in
+      # the deduped list) and forgetting i
+      #print("%s and %s have %d in common" % (i, j, overlap))
+      deduped[j].append(i)
+      original_scanner = i.originally_seen_by
+      # x/y/z are subjective and lies so sort for convenience
+      j.seen_by[original_scanner] = (i.x, i.y, i.z)
+
+      # Tell i's original scanner that it saw this one instead
+      original_scanner.beacons.remove(i)
+      # TODO: make sure not to use the x/y/z coords here though; they
+      # 're from another scanner's pov
+      original_scanner.beacons.append(j)
       found = True
       break
   if not found:
-    matches[i] = []
+    deduped[i] = []
 
-print ("Part1: %d" % len(matches))
+#print (deduped)
+print ("Part1: %d" % len(deduped))
 
 # So now we have the 367 beacons.
 # Suppose we say scanner0 is at 0,0, and all its beacons' coords are absolute,
@@ -287,28 +301,103 @@ print ("Part1: %d" % len(matches))
 # Look at each of scanner1's beacons, and find their other names. We know their
 # real positions, so update the scanners that found them accordingly.
 
-# Ugh, some of the scanners are upside down, etc.
+# But some of the scanners are upside down, etc, so we need to triangulate
 
+def all_angles(coords):
+  # TODO: only 24 are possible, but I don't know which 24
+  # TODO: ideally this would return functions/lambdas, not numbers
+  #       Then try each function in turn and choose one
+  a, b, c = coords
+  possibilities = [
+    (a, b, c),
+    (a, c, b),
+    (b, a, c),
+    (b, c, a),
+    (c, a, b),
+    (c, b, a),
+  ]
+  negations = [
+    (1, 1, 1),
+    (1, 1, -1),
+    (1, -1, 1),
+    (1, -1, -1),
+    (-1, 1, 1),
+    (-1, 1, -1),
+    (-1, -1, 1),
+    (-1, -1, -1)
+  ]
+  to_return = []
+  for p in possibilities:
+    for n in negations:
+      # sorry, future-me. Aiming to zip the two tuples
+      # together so like (2, 4, 6) zipped with (1, 1, -1)
+      # makes (2, 4, -6)
+      to_return.append(tuple([a * b for a, b in zip(p, n)]))
+  return to_return
+
+
+# Find the real locations of the scanners and beacons
 real_scannner_coords = {}
 real_beacon_coords = {}
 
-all_beacons = deque(matches.keys())
+all_beacons = deque(deduped.keys())
 
-real_scannner_coords[scanners[0]] =(0, 0, 0)
-for beacon in scanners[0].beacons:
-  real_beacon_coords[beacon] = (beacon.x, beacon.y, beacon.z)
+scanner = scanners[0]
+real_scannner_coords[scanner] =(0, 0, 0)
+for beacon in scanner.beacons:
+  real_beacon_coords[beacon] = beacon.seen_by[scanner]
   all_beacons.remove(beacon)
 
-for beacon in real_beacon_coords:
-  print beacon
-  for scanner, coords in beacon.alteregos.iteritems():
-    print ("aka %s by %s " % (coords, scanner))
-    otherx, othery, otherz = coords
-    real_coords = (beacon.x - otherx, beacon.y - othery, beacon.z - otherz)
-    if scanner in real_scannner_coords:
-      if real_scannner_coords[scanner] != real_coords:
-        print ("BUG: %s vs %s" % (real_scannner_coords[scanner], real_coords))
-        exit(1)
-    else:
-      real_scannner_coords[scanner] = (beacon.x - otherx, beacon.y - othery,
-                                       beacon.z - otherz)
+unmoored_scanners = deque(scanners[1:])
+while(unmoored_scanners):
+  print(len(unmoored_scanners), "left")
+  scanner = unmoored_scanners.popleft()
+  print("TRying", scanner)
+  # TODO: choose a data structure seriously
+  situated_beacons = list(set(scanner.beacons).intersection(set(real_beacon_coords.keys())))
+  if len(situated_beacons) < 2:
+    unmoored_scanners.append(scanner)
+    continue
+
+  anchor_beacon = situated_beacons[0]
+  anchor_real_location = real_beacon_coords[anchor_beacon]
+  anchor_relative_coords = anchor_beacon.seen_by[scanner]
+  anchor_relative_possibilities = all_angles(anchor_relative_coords)
+
+  second_beacon = situated_beacons[1]
+  second_real_location = real_beacon_coords[second_beacon]
+  second_relative_coords = second_beacon.seen_by[scanner]
+  second_relative_possibilities = all_angles(second_relative_coords)
+
+  scanner_orientation = -999
+
+  for i in range(0, len(anchor_relative_possibilities)):
+    #print(i, anchor_relative_possibilities[i])
+    anchorx, anchory, anchorz = anchor_relative_possibilities[i]
+    secondx, secondy, secondz = second_relative_possibilities[i]
+    scanner_possible_real_location = (
+      anchor_real_location[0] + anchorx,
+      anchor_real_location[1] + anchory,
+      anchor_real_location[2] + anchorz)
+    # test whether this scanner ocation works
+    second_possible_real_location = (
+      scanner_possible_real_location[0] - secondx,
+      scanner_possible_real_location[1] - secondy,
+      scanner_possible_real_location[2] - secondz)
+    #print("Looking at", second_possible_real_location)
+    if second_possible_real_location == second_real_location:
+      print("DING DING DING")
+      scanner_orientation = i
+      break
+  if scanner_orientation == -999:
+    unmoored_scanners.append(scanner)
+    continue
+
+  for beacon in scanner.beacons:
+    if beacon in situated_beacons:
+      continue
+    # otherwise find its location
+    beacon_relative_possibilities = all_angles(beacon.seen_by[scanner])
+    beacon_real_location = beacon_relative_possibilities[scanner_orientation]
+    real_beacon_coords[beacon] = beacon_real_location
+
