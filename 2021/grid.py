@@ -29,7 +29,7 @@ class Point(object):
 class Grid(object):
   def __init__(self, lines):
     self.lines = lines # [str, str, ...]
-    self.grid = {}  # (x, y): int
+    self.grid = {}  # (x, y): Point
     self.minx = 0
     self.miny = 0
     # max is actually one more than the max, for ease of ranges.
@@ -120,3 +120,13 @@ class Grid(object):
     print("x: min %d, max %d" % (self.minx, self.maxx))
     print("y: min %d, max %d" % (self.miny, self.maxy))
 
+  def printnocolor(self):
+    for y in range(self.miny, self.maxy):
+      s = "%2d " % y
+      for x in range(self.minx, self.maxx):
+        if (x, y) not in self.grid:
+          s += "_"
+          continue
+        s += "%s" % self.grid[(x, y)].value
+      print(s)
+ 
