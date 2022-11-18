@@ -1,6 +1,7 @@
 (ns aoc2016.core
  (:require aoc2016.day1
            aoc2016.day2
+           aoc2016.day3
            [clojure.string :as str])
 
   (:gen-class))
