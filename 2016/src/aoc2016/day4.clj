@@ -14,16 +14,33 @@
         )
 )
 
+(defn rotate [s n]
+  "Advance the characters in s n times"
+  ( ->> s
+        seq
+        (map int)
+        (map #(- % 97))
+        (map #(+ (mod n 26) %))
+        (map #(mod % 26))
+        (map #(+ 97 %))
+        (map char)
+        (apply str)
+  )
+)
+
 (defn check-valid
   "Check if a room name matches its checksum"
   [s]
   ; aaaaa-bbb-z-y-x-123[abxyz]
   (let [groups (re-matches #"^([a-z-]+)(\d+)\[(\w+)\]" s)
         room-name (second groups)
-        id (nth groups 2)
+        id (Integer/parseInt (nth groups 2))
         given-checksum (nth groups 3)
-        actual-checksum (checksum (re-seq #"[a-z]" room-name))]
-    (if(= given-checksum actual-checksum) (Integer/parseInt id) 0)
+        actual-checksum (checksum (re-seq #"[a-z]" room-name))
+        decrypted (str/join " " (map #(rotate % id) (str/split room-name #"-")))
+        ]
+    (if (str/includes? decrypted "north") (do (println "Part B" decrypted "in room" id)))
+    (if(= given-checksum actual-checksum) id 0)
    )
 )
 
@@ -36,7 +53,9 @@
    (is (= 987 (check-valid "a-b-c-d-e-f-g-h-987[abcde]")))
    (is (= 404 (check-valid "not-a-real-room-404[oarel]")))
    (is (= 0 (check-valid "totally-real-room-200[decoy]")))
-   (println("Part A" apply + (map check-valid (str/split s #"\n"))))
+
+   (println "Part A" (apply + (map check-valid (str/split s #"\n"))))
+
  )
 
 
