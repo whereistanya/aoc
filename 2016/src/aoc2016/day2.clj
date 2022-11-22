@@ -18,7 +18,7 @@
                [nil nil \D  nil nil]]
         grid (if (= part :parta) grida gridb)
         val (get (get grid y) x)]
-        (if val val nil)
+        val
         ))
 
 
