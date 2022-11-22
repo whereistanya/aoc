@@ -23,7 +23,7 @@
 (defn pw2 [s]
   "Churn through md5s to generate matching hashes"
   (loop [i 0
-         pw-so-far "00000000"
+         pw-so-far [0 0 0 0 0 0 0 0]
          found (set [])]
     (let [md5sum (md5 (str s i))
           change (if (= (subs md5sum 0 5) "00000") (subs md5sum 5 7) nil)
@@ -32,14 +32,13 @@
           next-found (if (< pos 8) (conj found pos) found)
           value (if (nil? change) nil (second change))
           next-pw (if (and (< pos 8) (not(contains? found pos)))
-             (str (subs pw-so-far 0 pos)
-                 value
-                 (subs pw-so-far (+ 1 pos)))
+             (assoc pw-so-far pos value)
               pw-so-far)
           ]
-          (if (not (nil? change)) (println i next-found next-pw))
+          (if (not (nil? change))
+             (println i next-pw))
           (if (= (count found) 8) ; we got all 8 digits
-            pw-so-far
+            (str/join pw-so-far)
             (recur (inc i) next-pw next-found)
            ))))
 
@@ -60,10 +59,11 @@
 
   ; recursive version
   ; 1m3s
-  (println(pw s))
+  (println "Part A" (pw s))
 
 
   ; part b
-  (println (pw2 s))
+  ; 3m10s
+  (println "Part B" (pw2 s))
 )
 
