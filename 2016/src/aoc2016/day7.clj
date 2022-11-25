@@ -22,7 +22,7 @@
     (subs s i (+ i 3))))
 
 (defn part-a [s]
-  "separate out pieces of a string and evaluate them"
+  "Separate out pieces of a string and evaluate them"
   (let [groups (re-seq #"\[\w+\]" s)] ; everything in []s
     (if (some true? (for [g groups] (check-has-abba g)))
       false  ; an enclosed group matches so the pattern fails
@@ -37,7 +37,7 @@
 
 
 (defn part-b [s]
-  "separate out pieces of a string and evaluate them"
+  "Separate out pieces of a string and evaluate them"
   (let [groups (re-seq #"\[\w+\]" s)
         remainder (reduce #(remove-from-string %1 %2) s groups)
         abas (get-abas remainder)]
@@ -46,8 +46,8 @@
     ;           :let [bab (str (subs aba 1 3) (second aba))]]
     ;           (some #(str/includes? % bab) groups)))
     (if (some true? (for [aba abas
-                  :let [bab (str (subs aba 1 3) (second aba))]]
-                      (some #(str/includes? % bab) groups)))
+                     :let [bab (str (subs aba 1 3) (second aba))]]
+                     (some #(str/includes? % bab) groups)))
         true
         false
     )
@@ -58,17 +58,16 @@
   "https://adventofcode.com/2016/day/7
       lein run day7"
   [& args]
-   (def s (slurp "src/aoc2016/input7.txt"))
-   ; tests
-   (is (true? (part-a "abba")))
-   (is (false? (part-a "abcd[bddb]xyyx")))
-   (is (true? (part-a "abbxyyxa")))
-   (is (false? (part-a "abxyxa")))
-   (is (true? (part-a "ioxxoj[asdfgh]zxcvbn")))
-   (is (false? (part-a "aaaa[qwer]tyui")))
-   (println "Part A tests passed")
-
+  (def s (slurp "src/aoc2016/input7.txt"))
   (def lines (map str/trim (str/split s #"\n")))
+
+  (is (true? (part-a "abba")))
+  (is (false? (part-a "abcd[bddb]xyyx")))
+  (is (true? (part-a "abbxyyxa")))
+  (is (false? (part-a "abxyxa")))
+  (is (true? (part-a "ioxxoj[asdfgh]zxcvbn")))
+  (is (false? (part-a "aaaa[qwer]tyui")))
+  (println "Part A tests passed")
   (println "Part A" (count(remove false? (map part-a lines))))
 
   (is (= (get-abas "abcbdb") ["bcb" "bdb"]))
@@ -79,7 +78,6 @@
   (is (= (true? (part-b "aaa[kek]eke"))))
   (is (= (true? (part-b "zazbz[bzb]cdb"))))
   (println "Part B tests passed")
-
   (println "Part B" (count(remove false? (map part-b lines))))
 )
 
