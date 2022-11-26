@@ -2,11 +2,10 @@
  (:require [clojure.string :as str]))
 
 
-
 (defn grid-at
   "Return the number at the grid position"
   [part x y]
-  (println "grid-at" part x y)
+  ;(println "grid-at" part x y)
   (let [grida [[1 2 3]
                [4 5 6]
                [7 8 9]]
@@ -20,8 +19,6 @@
         val (get (get grid y) x)]
         val
         ))
-
-
 
 (defn move-parta
   "Use the part a keypad"
@@ -42,6 +39,7 @@
 (defn move-partb
   "Use the part b keypad"
   [startx starty instruction]
+  ;(println "move-partb" startx starty instruction)
    (cond
     (= instruction \L)
      (if (grid-at :partb (- startx 1) starty)
@@ -66,10 +64,8 @@
 (defn move
   "follow one instruction to move one step"
   [part startx starty instruction]
-  ;(println "move" startx starty instruction)
   (if (= part :parta) (move-parta startx starty instruction)
                       (move-partb startx starty instruction)))
-
 
 (defn move-line
   "Find the next button"
@@ -100,18 +96,18 @@
           digit (first moved-to)
           x (second moved-to)
           y (last moved-to)]
-     (recur remaining
-            x
-            y
-            (conj code digit))))))
+     (recur remaining x y (conj code digit))))))
 
 (defn main
   "https://adventofcode.com/2016/day/2
       lein run day2"
   [& args]
-   (def s (slurp "src/aoc2016/test2.txt"))
+   (def s (slurp "src/aoc2016/input2.txt"))
    (let [procedure (str/split s #"\n")
-         startx 5
-         starty 5]
-    (println "PartA" (generate-code :parta procedure startx starty))
+         startx 1
+         starty 1]
+    (println "PartA" (generate-code :parta procedure startx starty)))
+   (let [procedure (str/split s #"\n")
+         startx 0
+         starty 2]
     (println "PartB" (generate-code :partb procedure startx starty))))
