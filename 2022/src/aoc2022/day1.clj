@@ -1,9 +1,9 @@
 (ns aoc2022.day1
   (:require [clojure.string :as str]))
 
-(defn sum-int-strings [split]
+(defn sum-int-strings [v]
   "Sum a vector of numbers in string form"
-  ( ->> split
+  ( ->> v
         (map #(Integer/parseInt %))
         (apply +)
   ))
@@ -12,7 +12,6 @@
   "Parse the whole input, split into calories per-elf, sum, sort"
   ( ->> (str/split s #"\n\n")
         (map str/trim)
-        ;(map #(str/replace % #"\n" " "))
         (map #(str/split % #"\n"))
         (map #(sum-int-strings %))
         sort
