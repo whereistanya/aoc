@@ -53,8 +53,6 @@
         (map scores)
         (apply +)))
 
-(defn split-to-vector [s] ( ->> (str/split s #" ")))
-
 (defn part2 [s]
   "Parse the whole input, do stuff"
   ( ->> (str/split s #"\n")
