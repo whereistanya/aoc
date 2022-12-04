@@ -59,7 +59,7 @@
   "Parse the whole input, do stuff"
   ( ->> (str/split s #"\n")
         (map str/trim)
-        (map split-to-vector) ; TODO: how to do this inline
+        (map #(str/split % #" "))
         (map find-move)
         (map scores)
         (apply +)))
