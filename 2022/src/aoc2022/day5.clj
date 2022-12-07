@@ -5,9 +5,9 @@
 (defn get-indexes [line]
   (let [m (map-indexed vector line)
         only-chars (filter #(Character/isUpperCase (second %)) m)
-        kv (into {} (for [x only-chars] [(first x) [(second x)]]))
+        charmap (into {} (for [x only-chars] [(first x) [(second x)]]))
         ]
-        kv
+        charmap
     )
   )
 
