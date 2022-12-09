@@ -35,7 +35,6 @@ def move_towards(first, second):
     y1 -= 1
   elif y1 < y2:
     y1 += 1
-  #if y1 == y2:
   if x1 > x2:
     x1 -= 1
   elif x1 < x2:
