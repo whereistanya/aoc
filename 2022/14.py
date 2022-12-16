@@ -53,6 +53,7 @@ class Cave(object):
     self.min_y = 0  # TODO: always?
     self.rocks = set()
     self.start = (500, 0)
+    self.sand = set()
 
   def add_wall(self, wall):
     self.walls.append(wall)
@@ -79,9 +80,37 @@ class Cave(object):
           s += "#"
         elif (x, y) == self.start:
           s += "+"
+        elif (x, y) in self.sand:
+          s += "o"
         else:
           s += "."
       print(s)
+  
+  def empty(self, x, y):
+    if y > self.max_y:
+      return False
+    if ((x, y) in self.rocks or
+       (x, y) in self.sand):
+          return False
+    return True
+
+  def drop_sand(self):
+    x, y = self.start
+    while True:
+      started_at = (x, y)
+      print(started_at)
+      while (self.empty(x, y + 1)):
+        print ("empty? ", x, y)
+        y += 1
+      if (self.empty(x - 1, y + 1)):
+        x -= 1
+        y += 1
+      elif (self.empty(x + 1, y + 1)):
+        x += 1
+        y += 1
+      if (x, y) == started_at:
+        break
+    self.sand.add((x, y))
 
 
 #with open("input14.txt", "r") as f:
@@ -100,5 +129,8 @@ for group in groups:
       wall = Wall(prev[0], prev[1], x, y)
       cave.add_wall(wall)
     prev = (x, y)
+
+for i in range(10):
+  cave.drop_sand()
 
 cave.print()
