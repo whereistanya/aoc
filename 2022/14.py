@@ -147,15 +147,15 @@ for group in groups:
     prev = (x, y)
 
 i = 0
-"""
+
 while cave.can_drop():
   if not cave.drop_sand():
     break
   i += 1
 cave.print()
 print("Part 1:", i)
-"""
 
+cave.sand = set()
 extra_floor = 200
 floor = Wall(cave.min_x - extra_floor, cave.max_y + 2,
              cave.max_x + extra_floor, cave.max_y + 2)
