@@ -3,8 +3,13 @@
 
 import math
 import sys
-sys.path.append("../2021/")
-import grid
+
+with open("input14.txt", "r") as f:
+#with open("test14.txt", "r") as f:
+  lines = [x.strip() for x in f.readlines()]
+  groups = [x.split("->") for x in lines]
+
+
 
 
 class Wall(object):
@@ -54,6 +59,7 @@ class Cave(object):
     self.rocks = set()
     self.start = (500, 0)
     self.sand = set()
+    self.last_path = set()
 
   def add_wall(self, wall):
     self.walls.append(wall)
@@ -72,51 +78,61 @@ class Cave(object):
       self.rocks.add(rock)
 
   def print(self):
-    print(self.rocks)
     for y in range (self.min_y, self.max_y + 1):
-      s = "%d" % y
-      for x in range (self.min_x, self.max_x):
+      #s = "%d" % y
+      s = ""
+      for x in range (self.min_x - 1, self.max_x + 1):
         if (x, y) in self.rocks:
           s += "#"
         elif (x, y) == self.start:
           s += "+"
+        elif (x, y) in self.last_path:
+          s += "~"
         elif (x, y) in self.sand:
           s += "o"
         else:
           s += "."
       print(s)
-  
+
+  def can_drop(self):
+    if self.empty(self.start[0], self.start[1]):
+      return True
+    return False
+
   def empty(self, x, y):
-    if y > self.max_y:
-      return False
+    #if y > self.max_y:
+    #  return False
     if ((x, y) in self.rocks or
        (x, y) in self.sand):
           return False
     return True
 
   def drop_sand(self):
+    """Returns:
+        False: in void, stop dropping
+        True: fine, keep dropping
+    """
     x, y = self.start
+    self.last_path = set()
     while True:
-      started_at = (x, y)
-      print(started_at)
+      last_pos = (x, y)
       while (self.empty(x, y + 1)):
-        print ("empty? ", x, y)
+        if y > self.max_y:
+          return False # off the end
         y += 1
+        self.last_path.add((x, y))
       if (self.empty(x - 1, y + 1)):
         x -= 1
         y += 1
+        self.last_path.add((x, y))
       elif (self.empty(x + 1, y + 1)):
         x += 1
         y += 1
-      if (x, y) == started_at:
+        self.last_path.add((x, y))
+      if (x, y) == last_pos:
         break
     self.sand.add((x, y))
-
-
-#with open("input14.txt", "r") as f:
-with open("test14.txt", "r") as f:
-  lines = [x.strip() for x in f.readlines()]
-  groups = [x.split("->") for x in lines]
+    return True
 
 
 cave = Cave()
@@ -130,7 +146,26 @@ for group in groups:
       cave.add_wall(wall)
     prev = (x, y)
 
-for i in range(10):
-  cave.drop_sand()
-
+i = 0
+"""
+while cave.can_drop():
+  if not cave.drop_sand():
+    break
+  i += 1
 cave.print()
+print("Part 1:", i)
+"""
+
+extra_floor = 200
+floor = Wall(cave.min_x - extra_floor, cave.max_y + 2,
+             cave.max_x + extra_floor, cave.max_y + 2)
+cave.add_wall(floor)
+
+i = 0
+while cave.can_drop():
+  if not cave.drop_sand():
+    print("Need more floor after", i)
+    break
+  i += 1
+print("Part 2:", i)
+
