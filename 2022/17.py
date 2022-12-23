@@ -2,75 +2,102 @@
 
 import math
 
-filename = "input17.txt"
 filename = "test17.txt"
+filename = "input17.txt"
 
 
 class Game(object):
   def __init__(self, jets):
     self.width = 7
-    self.height = 30
+    self.height = 4
     self.grid = set() # fallen rocks not current rock
     self.current = []
     self.next_rock = 0
     self.jets = jets
     self.next_jet = 0
-    self.adjust_x = 0
-    self.adjust_y = 0
+    self.floor = [(0, 0), (1, 0), (2, 0), (3, 0), (4, 0), (5, 0), (6, 0)]
+    self.grid.update(self.floor)
+    self.tower_height = 0
 
   def print(self):
-    print (self.grid)
-    for y in range(self.height):
-      s = ""
-      for x in range(self.width):
+    print("\n\n")
+
+    for y in range(self.height, -1, -1):
+      s = str(y).zfill(2)
+      s += " "
+      for x in range(-1, self.width + 1):
         if (x, y) in self.grid:
           s += "#"
         elif (x, y) in self.current:
           s += "@"
+        elif (x, y) in self.floor:
+          s += "-"
+        elif x in [-1, 7]:
+          s += "|"
         else:
           s += "."
       print(s)
 
-  def get_rock(self, i):
+  def can_move(self, pos):
+    if any([p in self.grid for p in pos]):
+      return False
+    if any([x < 0 for (x, y) in pos]):
+      return False
+    if any([x > 6 for (x, y) in pos]):
+      return False
+    if any([y < 0 for (x, y) in pos]):
+      return False
+    return True
+
+  def position_next_rock(self):
     rocks = [
       [(0, 0), (1, 0), (2, 0), (3, 0)], # horizontal
       [(1, 0), (0, 1), (1, 1), (2, 1), (1, 2)], # cross
-      [(2, 0), (2, 1), (0, 2), (1, 2), (2, 2)], # ell
+      [(0, 0), (1, 0), (2, 0), (2, 1), (2, 2)], # ell
       [(0, 0), (0, 1), (0, 2), (0, 3)], # vertical
       [(0, 0), (1, 0), (0, 1), (1, 1)], # square
     ]
-    return rocks[i]
+    rock = rocks[self.next_rock]
+    adjx = 2
+    adjy = self.height
+    self.current = [(x + adjx, y + adjy) for (x, y) in rock]
+    self.next_rock = (self.next_rock + 1) % 5
 
   def move_jets(self):
     c = self.jets[self.next_jet % len(self.jets)]
     if c == "<":
-      self.adjust_x -= 1
+      #print("Push left")
+      adjx = -1
     elif c == ">":
-      self.adjust_x += 1
+      #print("Push right")
+      adjx = + 1
     else:
       print("BUG: unexpected input:", c)
       exit(1)
-    self.adjust_current()
     self.next_jet += 1
+    return adjx
 
-  def drop_rock(self):
-    # new rock, set standard position
-    self.adjustment = (3, 0) # rock is +3x, unchanged y
-    self.current = self.get_rock(self.next_rock)
-    self.adjust_current()
-    self.print()
-    self.move_jets()
-    self.print()
-    self.adjust_y += 1
-    self.adjust_current()
-    self.print()
+  def drop_rock(self, i=0):
+    self.position_next_rock()
+    while True:
+      adjx = self.move_jets()
+      next_pos = [(x + adjx, y) for (x, y) in self.current]
+      #if i == 763:
+      #  print (next_pos)
+      if self.can_move(next_pos):
+        self.current = next_pos
 
-
-
-  def adjust_current(self):
-    adjx = self.adjust_x
-    adjy = self.adjust_y
-    self.current = [(x + adjx, y + adjy) for (x, y) in self.current]
+      next_pos = [(x, y - 1) for (x, y) in self.current]
+      if not self.can_move(next_pos):
+        # stop moving
+        self.grid.update(self.current)
+        high_point = max([y for (x, y) in self.current])
+        if high_point > self.tower_height:
+          self.tower_height = high_point
+        self.height = self.tower_height + 4
+        break
+      self.current = next_pos
+      #self.print()
 
 
 with open(filename, "r") as f:
@@ -81,6 +108,8 @@ entry = 2 # two units away from the left wall
 
 
 game = Game(data)
-game.print()
-game.drop_rock()
-game.print()
+for i in range (2022):
+  game.drop_rock()
+  if ((i + 1) % 5 == 0):
+    print(i + 1, game.tower_height)
+print(i + 1, game.tower_height)
