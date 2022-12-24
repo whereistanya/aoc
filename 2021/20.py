@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 import grid
 
@@ -7,8 +7,8 @@ inputfile = "input20.test"
 
 with open(inputfile, "r") as f:
   algorithm = f.readline()
-  print "Algorithm: %s" % algorithm
-  print "---------"
+  print ("Algorithm: %s" % algorithm)
+  print ("---------")
   _ = f.readline()
   lines = [x.strip() for x in f.readlines()]
 
@@ -25,7 +25,7 @@ def getindex(point, default="0"):
     elif n.value == "#":
       s += "1"
     else:
-      print "BUG:", n.value
+      print ("BUG:", n.value)
       exit(1)
   return int(s, 2)
 
@@ -49,7 +49,7 @@ def enhance(image, algorithm, default):
     index = getindex(point, default)
     new_value = algorithm[index]
     new_values[(point.x, point.y)] = new_value
-  for k, v in new_values.iteritems():
+  for k, v in new_values.items():
     image.setvalue(k[0], k[1], v)
 
 image = grid.Grid(lines)
@@ -62,5 +62,5 @@ for i in range(25):
   enhance(image, algorithm, "1")
 
 image.printgrid()
-print [x.value for x in image.grid.values()].count("#")
+print ([x.value for x in image.grid.values()].count("#"))
 
