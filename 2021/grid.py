@@ -96,6 +96,37 @@ class Grid(object):
       #    new_point = color.YELLOW
     return neighbours
 
+  def get_boundaries(self, filter_to=None):
+    """Supply a list of valid chars to filter.
+
+    This function returns min and max *inclusive*.
+    """
+    rows = {} # y: (min_x. max_x)
+    cols = {} # x: (min_y, max_y)
+
+    for x, y in self.grid.keys():
+      if filter_to and self.grid[(x, y)].value not in filter_to:
+        continue
+      if x not in cols:
+        cols[x] = (y, y)
+      else:
+        _min, _max = cols[x]
+        if y <= _min:
+          cols[x] = (y, _max)
+        if y >= _max:
+          cols[x] = (_min, y)
+
+      if y not in rows:
+        rows[y] = (x, x)
+      else:
+        _min, _max = rows[y]
+        if x <= _min:
+          rows[y] = (x, _max)
+        if x >= _max:
+          rows[y] = (_min, x)
+
+    return rows, cols
+
   def neighbours_by_direction(self, point, diagonal=True):
     fns = {
       "northwest": self.nw_xy,
@@ -184,7 +215,11 @@ class Grid(object):
     self.maxx = len(self.lines[0])
     self.maxy = len(self.lines)
     for y in range(self.miny, self.maxy):
-      for x in range(self.minx, self.maxx):
+      for x in range(self.minx, len(self.lines[y]) + 1):
+        if x > self.maxx:
+          self.maxx = x
+        if x < self.minx:
+          self.minx = x
         try:
           self.grid[(x, y)] = Point(x, y, self.lines[y][x], self)
         except IndexError:
@@ -196,7 +231,7 @@ class Grid(object):
       s = "%2d " % y
       for x in range(self.minx, self.maxx):
         if (x, y) not in self.grid:
-          s += "_"
+          s += " "
           continue
         s += (self.grid[(x, y)].color + "%s" % self.grid[(x, y)].value +
               color.END)
@@ -210,7 +245,7 @@ class Grid(object):
       s = "%2d " % y
       for x in range(self.minx, self.maxx):
         if (x, y) not in self.grid:
-          s += "_"
+          s += " "
           continue
         s += "%s" % self.grid[(x, y)].value
       print(s)
