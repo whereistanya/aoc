@@ -2,8 +2,8 @@
 
 import operator
 
-test = False
 test = True
+test = False
 
 if test:
   filename = "test21.txt"
@@ -46,66 +46,107 @@ while len(found) < len(to_find):
 print("Part 1:", found["root"])
 
 # Part 2
-def translate(root, to_find):
-  new_root = []
+def simplify(equation, to_find):
+  new_equation = []
+  ops = {
+    "+": operator.add,
+    "*": operator.mul,
+    "-": operator.sub,
+    "/": operator.floordiv,
+  }
+
   i = 0
-  print(root)
-  #if len(root) > 5 and root[0] == "(" and root[-1] == ")":
-  #  root = root[1:-1]
-  #  print("trimmed")
-  while i < len(root):
-    piece = root[i]
+  while i < len(equation):
+    piece = equation[i]
     if piece in to_find:
       if len(to_find[piece]) == 1:
-        new_root.extend(to_find[piece])
+        new_equation.extend(to_find[piece])
       else:
-        new_root.append("(")
-        new_root.extend(to_find[piece])
-        new_root.append(")")
+        new_equation.append("(")
+        new_equation.extend(to_find[piece])
+        new_equation.append(")")
     elif (piece == "(" and
-          root[i + 1].isdecimal() and
-          root[i + 2] in ["-", "+", "*", "/"] and
-          root[i + 3].isdecimal() and
-          root[i + 4] == ")"):
-      ops = {
-        "+": operator.add,
-        "*": operator.mul,
-        "-": operator.sub,
-        "/": operator.floordiv,
-      }
-      val = ops[root[i + 2]](int(root[i + 1]), int(root[i + 3]))
-      new_root.append(str(val))
+          equation[i + 1].isdecimal() and
+          equation[i + 2] in ["-", "+", "*", "/"] and
+          equation[i + 3].isdecimal() and
+          equation[i + 4] == ")"):
+      op = ops[equation[i + 2]]
+      val = op(int(equation[i + 1]), int(equation[i + 3]))
+      if op == "/" and int(equation[i + 1]) % int(equation[i + 3]) != 0:
+        print("BUG: trying to divide %d by %d" % (equation[i + 1], equation[i + 3]))
+        exit(1)
+      new_equation.append(str(val))
       i += 4
+    elif ((len(equation) - i) > 2 and
+          equation[i].isdecimal() and
+          equation[i + 1] in ["-", "+", "*", "/"] and
+          equation[i + 2].isdecimal()):
+      op = ops[equation[i + 1]]
+      val = op(int(equation[i]), int(equation[i + 2]))
+      if op == "/" and int(equation[i]) % int(equation[i + 2]) != 0:
+        print("BUG: trying to divide %d by %d" % (equation[i], equation[i + 2]))
+        exit(1)
+      new_equation.append(str(val))
+      i += 2
     else:
-      new_root.append(piece)
+      new_equation.append(piece)
     i += 1
-  return new_root
+  return new_equation
 
-found = {}
-#to_find["root"][1] = "=" 
-sidea = to_find["root"][0]
-sideb = to_find["root"][2]
+def flip(op, val):
+  l = []
+  if op == "+":
+    l = (["-", val])
+  elif op == "-":
+    l = (["+", val])
+  elif op == "*":
+    l = (["/", val])
+  elif op == "/":
+    l = (["*", val])
+  else:
+    print("BUG: unexpected op", op)
+    exit(1)
+  return l
+
+def balance(side1, side2, to_find):
+  # Only works when the variable is on side1.
+  if side1[0] == "(" and side1[-1] == ")":
+    side1 = side1[1:-1] # strip parens
+  elif side1[-1].isdecimal():
+    side2.extend(flip(side1[-2], side1[-1]))
+    side1 = side1[0:-2]
+  elif side1[0].isdecimal():
+    if side1[1] in ["+", "*"]:
+      side2.extend(flip(side1[1], side1[0]))
+      side1 = side1[2:]
+    else:
+      side2 = side1[0:2] + side2
+      side1 = side1[2:]
+  side1 = simplify(side1, to_find)
+  side2 = simplify(side2, to_find)
+  return side1, side2
+
+
+# Remove 'humn' and change 'root' for part 2.
+side1 = [to_find["root"][0]]
+side2 = [to_find["root"][2]]
+to_find.pop("root")
 to_find.pop("humn")
-#to_find["humn"] = ["301"]
-root = []
-#new_root = to_find["root"]
-#to_find.pop("root")
 
-before = []
-after = [sidea]
-while(before != after):
-  before = after
-  after = translate(before, to_find)
-  print(after)
-sidea = after
+# First, simplify both sides as much as possible.
+while True:
+  new_side1 = simplify(side1, to_find)
+  new_side2 = simplify(side2, to_find)
+  if new_side1 == side1 and new_side2 == side2:
+    break
+  side1 = new_side1
+  side2 = new_side2
 
-before = []
-after = [sideb]
-while(before != after):
-  before = after
-  after = translate(before, to_find)
-  print(after)
-sideb = after
+# Then balance the sides, simplifying as part of the balancing.
+while True:
+  new_side1, side2 = balance(side1, side2, to_find)
+  if new_side1 == side1:
+    break
+  side1 = new_side1
 
-print(" ".join((sidea)))
-print(" ".join((sideb)))
+print("Part 2: %s = %s" % (side1, side2))
