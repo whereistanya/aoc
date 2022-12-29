@@ -4,11 +4,11 @@ from enum import Enum
 from functools import cmp_to_key
 import operator
 
-test = False
 test = True
+test = False
 
 if test:
-  filename = "test13b.txt"
+  filename = "test13.txt"
 else:
   filename = "input13.txt"
 
@@ -49,28 +49,26 @@ def evaluate(val1, val2):
 
   # Work through tokens, evaluating as you go
   while True:
-    #print(c1, len(val1))
     if c1 >= len(val1) and c2 >= len(val2):
       return Order.INCONCLUSIVE
 
     if c1 >= len(val1):
-      #print("       Left side ran out of items, so inputs are in the right order")
+      print("       Left side ran out of items, so inputs are in the right order")
       return Order.CORRECT
 
     if c2 >= len(val2):
-      #print("       Rightside ran out of items, so inputs are NOT in the right order")
+      print("       Rightside ran out of items, so inputs are NOT in the right order")
       return Order.INCORRECT
 
     v1 = val1[c1]
     v2 = val2[c2]
-    #print("   Compare %s vs %s" % (v1, v2))
+    print("   Compare %s vs %s" % (v1, v2))
 
     if v1 == "[" and v2 == "[": # both lists
-      #print("Both are lists")
       close1 = match_paren_index(val1[c1:])
       close2 = match_paren_index(val2[c2:])
       order = evaluate(list(val1[c1 + 1:c1 + close1 ]),
-                       list(val2[c1 + 1:c2 + close2 ]))
+                       list(val2[c2 + 1:c2 + close2 ]))
       if order == Order.INCONCLUSIVE:
         c1 += close1 + 1 # past the close paren
         c2 += close2 + 1 # past the close paren
@@ -102,10 +100,10 @@ def evaluate(val1, val2):
 
     if v1.isdecimal() and v2.isdecimal(): # both numbers
       if int(v1) < int(v2):
-        #print("       Left side is smaller, so inputs are in the right order")
+        print("       Left side is smaller, so inputs are in the right order")
         return Order.CORRECT
       elif int(v1) > int(v2):
-        #print("       Right side is smaller, so inputs are NOT in the right order")
+        print("       Right side is smaller, so inputs are NOT in the right order")
         return Order.INCORRECT
       else:
         c1 += 1
@@ -141,9 +139,10 @@ def test():
     vectorify("[[],[8,2,[2]],[],[[7,10]]]"),
     vectorify("[[[[6,10,10,5],4,10,9,[8,7,2,9,1]]],[]]")) == Order.CORRECT)
 
-#test()
+test()
 
 
+# Part 1
 i = 1
 total = 0
 all_packets = []
@@ -158,32 +157,35 @@ for pair in pairs:
   if result == Order.CORRECT:
     total += i
   if result == None:
-    print("BUG")
+    print("BUG: no result from evaluating %s and %s" % (p1, p2))
     exit(1)
   i += 1
 
 print("Part 1:", total)
 
 # Part 2
-#all_packets.append(vectorify("[[2]]"))
-#all_packets.append(vectorify("[[6]]"))
+dividers = [ "[[2]]", "[[6]]" ]
+for divider in dividers:
+  all_packets.append(vectorify(divider))
 
-print ("Part 2")
 
 def compare(left, right):
-  print("cmp", left, right)
   order = evaluate(left, right)
-  print(order)
   if order == Order.CORRECT:
     return -1
   if order == Order.INCORRECT:
     return 1
   return 0
 
-#print(all_packets)
-#print()
-#print()
+sorted_packets = sorted(all_packets, key=cmp_to_key(compare))
+printable_packets =["".join(x) for x in sorted_packets]
+i = 1
+signal = 1
+for p in printable_packets:
+  print (i, p)
+  if p in dividers:
+    signal *= i
+  i += 1
 
-print(sorted(all_packets, key=cmp_to_key(compare)))
 
-
+print ("Part 2:", signal)
