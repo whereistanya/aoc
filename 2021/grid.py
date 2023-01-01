@@ -249,4 +249,15 @@ class Grid(object):
           continue
         s += "%s" % self.grid[(x, y)].value
       print(s)
+
+  def printraw(self):
+    """For use when the grid contains raw coordinates, not Points"""
+    for y in range(self.miny, self.maxy):
+      s = "%2d " % y
+      for x in range(self.minx, self.maxx):
+        if (x, y) not in self.grid:
+          s += " "
+          continue
+        s += "%s" % self.grid[(x, y)]
+      print(s)
  

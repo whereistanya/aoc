@@ -6,8 +6,8 @@ import sys
 sys.path.append("../2021")
 import grid as g
 
-test = True
 test = False
+test = True
 
 if test:
   filename = "test22.txt"
@@ -72,6 +72,11 @@ directions = ["e", "s", "w", "n"]
 direction = 0  # east
 
 instrs = parse_code(code)
+grid.printnocolor()
+
+
+
+
 
 for instr in instrs:
   min_x = rows[y][0]
@@ -79,22 +84,21 @@ for instr in instrs:
   min_y = cols[x][0]
   max_y = cols[x][1] + 1
 
-  #grid.printnocolor()
   prev_x = x
   prev_y = y
-  print("The direction is now:", direction)
-  print("Beginning instruction:", instr)
+  #print("The direction is now:", direction)
+  #print("Beginning instruction:", instr)
   distance, turn = instr
 
   if direction == 0:
-    print("Moving %d east from %d, %d" % (distance, x, y))
+    #print("Moving %d east from %d, %d" % (distance, x, y))
     new_x = x + distance
     # first see if we run into anything before we loop
     for wall in row_walls[y]:
       if wall > x and wall <= new_x:
         new_x = wall - 1
 
-    if new_x >= max_x: # we loop
+    if new_x >= max_x: # we loop / move to another part of the cube
       if (min_x, y) in walls: # nowhere to loop to
         new_x = max_x - 1
       else:
@@ -105,7 +109,7 @@ for instr in instrs:
     move_to = (new_x, y)
 
   elif direction == 1: # south
-    print("Moving %d south from %d, %d" % (distance, x, y))
+    #print("Moving %d south from %d, %d" % (distance, x, y))
     new_y = y + distance
     for wall in col_walls[x]:
       if wall > y and wall <= new_y:
@@ -122,7 +126,7 @@ for instr in instrs:
     move_to = (x, new_y)
 
   elif direction == 2: # west
-    print("Moving %d west from %d, %d" % (distance, x, y))
+    #print("Moving %d west from %d, %d" % (distance, x, y))
     new_x = x - distance
     for wall in row_walls[y]:
       if wall < x and wall >= new_x:
@@ -139,7 +143,7 @@ for instr in instrs:
     move_to = (new_x, y)
 
   elif direction == 3: # north
-    print("Moving %d north from %d, %d" % (distance, x, y))
+    #print("Moving %d north from %d, %d" % (distance, x, y))
     new_y = y - distance
     for wall in col_walls[x]:
       if wall < y and wall >= new_y:

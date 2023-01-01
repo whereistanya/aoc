@@ -3,8 +3,8 @@
 import math
 import re
 
-test = True
 test = False
+test = True
 
 if test:
   filename = "test15.txt"
