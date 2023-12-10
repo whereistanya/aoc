@@ -20,17 +20,14 @@ if TEST:
 total= 0
 total2 = 0
 for line in lines:
-  initial_seq = [int(x) for x in line.strip().split()]
+  seq = [int(x) for x in line.strip().split()]
 
-  step_count = 0
-  finals = [initial_seq[-1]]
-  firsts = [initial_seq[0]]
-  seq = list(initial_seq)
+  finals = [seq[-1]]
+  firsts = [seq[0]]
   while sum(seq) != 0:
     seq = [ y - x for (x, y) in list(pairwise(seq)) ]
     finals.append(seq[-1])
     firsts.append(seq[0])
-    step_count += 1
   total += sum(finals)
 
   end = 0
