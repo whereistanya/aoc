@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-# Code by Ms 11
+# Code by Ms 11 (not finished yet)
 
 def is_nice(s):
   if s == "":

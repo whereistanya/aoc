@@ -8,41 +8,70 @@ import (
  . "github.com/whereistanya/aoc2015/util"
 )
 
-func isNice(s string, part int) bool {
+func isNice(s string) (bool, bool) {
   chars := []rune(s)
   badStrings := map[string]bool { "ab": true, "cd": true, "pq": true, "xy": true }
   vowels := map[rune]bool { 'a': true, 'e': true, 'i': true, 'o': true, 'u': true }
 
+  // total vowels in the word
   vowelCount := 0
+  // letter appears twice in a row
   hasDupe := false
+  // strings to avoid
   hasBad := false
-  //hasPair := false
-  //hasSeparatedDupe = false
+  // a pair of any two letters that appears 2+ times without overlapping
+  hasRepeatingPair := false
+  // a letter that repeats with exactly one letter in between
+  hasSeparatedDupe := false
 
+  dupletPositions := map[string]int{}
 
-  last := ' '
-  for _, c := range chars {
-    duplet := fmt.Sprintf("%c%c", last, c)
+  for i, c := range chars {
+    backOne := ' '
+    backTwo := ' '
+    if i > 0 {
+      backOne = chars[i - 1]
+    }
+    if i > 1 {
+      backTwo = chars[i - 2]
+    }
+
+    // Part 1: Check for bad list
+    duplet := fmt.Sprintf("%c%c", backOne, c)
     _, bad := badStrings[duplet]
     if bad {
       hasBad = true
-      break
     }
-    _, ok := vowels[c]
+
+    // Part 2: Check for repeating pair
+    position, ok := dupletPositions[duplet]
+    if !ok {  // only add the first instance
+      dupletPositions[duplet] = i
+    } else if position < i - 1 {
+        hasRepeatingPair = true
+    }
+
+    // Part 1: Check for vowel count
+    _, ok = vowels[c]
     if ok {
       vowelCount += 1
     }
-    if c == last {
+
+    // Part 1: Check for dupe
+    if c == backOne {
       hasDupe = true
     }
 
-    last = c
+    // Part 2: Check for separated dupe
+    if c == backTwo {
+      hasSeparatedDupe = true
+    }
   }
 
-  if hasDupe && !hasBad && vowelCount >= 3 {
-    return true
-  }
-  return false
+  partOneNice := hasDupe && !hasBad && vowelCount >= 3
+  partTwoNice := hasSeparatedDupe && hasRepeatingPair
+
+  return partOneNice, partTwoNice
 }
 
 
@@ -62,14 +91,19 @@ func main() {
   }
 
   part1NiceCount := 0
-  //part2NiceCount := 0
+  part2NiceCount := 0
   for _, line := range(lines) {
-    if isNice(line, 1) {
+    nice1, nice2 := isNice(line)
+    fmt.Printf("%s : %v, %v\n", line, nice1, nice2)
+    if nice1 {
       part1NiceCount += 1
     }
-    //fmt.Println(line, isNice(line))
+    if nice2 {
+      part2NiceCount += 1
+    }
   }
-  fmt.Printf("Part 1: %d/n", part1NiceCount)
+  fmt.Printf("Part 1: %d\n", part1NiceCount)
+  fmt.Printf("Part 2: %d\n", part2NiceCount)
 }
 
 
