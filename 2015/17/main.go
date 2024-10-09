@@ -3,29 +3,37 @@ package main
 import (
  "fmt"
  "log"
+ "math"
  "os"
  "strconv"
 
  . "github.com/whereistanya/aoc2015/util"
 )
 
-func generateFillCombinations(toFill int, current int, containers []int, counter *int) {
-// current is an index into the list of containers, rather than passing
-// sub-slices around. But maybe that'd be fine? TODO: do both ways and see.
+func generateFillCombinations(toFill int, containers []int,
+                              counter *int, depth int, depths map[int]int) {
   if toFill == 0 {
     *counter += 1
+    _, found := depths[depth]
+    if found {
+      depths[depth] += 1
+    } else {
+      depths[depth] = 1
+    }
     return
   }
 
-  for i := current; i < len(containers); i++ {
+  for i := 0; i < len(containers); i++ {
     if containers[i] <= toFill {
-      generateFillCombinations (toFill - containers[i], i + 1, containers, counter)
+      // subslicing containers for the second arg here. Compared it with passing
+      // around an index and it's around the same time to run: looks like go
+      // does the right thing without any copying overhead.
+      generateFillCombinations (toFill - containers[i], containers[i + 1:], counter, depth + 1, depths)
     }
   }
 }
 
 func main() {
-
   var filename string
   if len(os.Args) > 1 {
     filename = os.Args[1]
@@ -48,14 +56,21 @@ func main() {
     }
   }
 
-  fmt.Println(containers)
-
   combinationCount := new(int)
+  depths := map[int]int{} // for part 2
 
   total := 150 // 25 for testing; 150 for reals
-  generateFillCombinations(total, 0, containers, combinationCount)
+  generateFillCombinations(total, containers, combinationCount, 0, depths)
 
   fmt.Println("Part 1", *combinationCount)
+
+  lowest := math.MaxInt64
+  for k, _ := range depths {
+    if k < lowest {
+      lowest = k
+    }
+  }
+  fmt.Println("Part 2:", depths[lowest])
 }
 
 
