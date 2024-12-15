@@ -1,5 +1,4 @@
 from collections import defaultdict
-# TODO: rewrite with defaultdict
 
 class color:
    PURPLE = '\033[95m'
@@ -47,7 +46,31 @@ class Grid(object):
     self.maxy = 0
     self.populate()
 
-  # TODO: update old code that expects return x,y tuple here
+  # TODO: update old code to use function names
+  def nw(self, point):
+    return self.getpoint_from_xy(point.x - 1, point.y - 1)
+
+  def n(self, point):
+    return self.getpoint_from_xy(point.x, point.y - 1)
+
+  def ne(self, point):
+    return self.getpoint_from_xy(point.x + 1, point.y - 1)
+
+  def e(self, point):
+    return self.getpoint_from_xy(point.x + 1, point.y)
+
+  def w(self, point):
+    return self.getpoint_from_xy(point.x - 1, point.y)
+
+  def sw(self, point):
+    return self.getpoint_from_xy(point.x - 1, point.y + 1)
+
+  def s(self, point):
+    return self.getpoint_from_xy(point.x, point.y + 1)
+
+  def se(self, point):
+    return self.getpoint_from_xy(point.x + 1, point.y + 1)
+
   def nw_xy(self, point):
     return self.getpoint_from_xy(point.x - 1, point.y - 1)
 
@@ -75,6 +98,7 @@ class Grid(object):
 
 
 
+
   def neighbours(self, point, diagonal=True, default_value=""):
     #print("Getting neighbours for %d,%d" % (point.x,point.y))
     neighbours = []
@@ -83,21 +107,20 @@ class Grid(object):
       # nw, n, ne, w, self, e, sw, s, se
       to_add = [self.nw_xy(point), self.n_xy(point),  self.ne_xy(point),
                 self.w_xy(point),  (point.x, point.y),self.e_xy(point),
-                self.sw_xy(point), self.s_xy(point),  self.s_xy(point)]
+                self.sw_xy(point), self.s_xy(point),  self.se_xy(point)]
     else:
       to_add = [self.e_xy(point), self.w_xy(point),
                 self.s_xy(point), self.n_xy(point)]
     for neighbour in to_add:
-      if neighbour in self.grid:
-        neighbours.append(self.grid[neighbour])
+      if neighbour in self.grid.values():
+        neighbours.append(neighbour)
       else:
-        neighbours.append(None)
-      #  if default_value != "":
-      #    print("Neighbour %d,%d doesn't exist yet. Creating it." %
-      #          (neighbour[0], neighbour[1]))
-      #    new_point = self.create_point(neighbour[0], neighbour[1], default_value)
-      #    neighbours.append(new_point)
-      #    new_point = color.YELLOW
+        if default_value != "":
+          print("Neighbour %d,%d doesn't exist yet. Creating it." %
+                (neighbour[0], neighbour[1]))
+          new_point = self.create_point(neighbour[0], neighbour[1], default_value)
+          neighbours.append(new_point)
+          new_point = color.YELLOW
     return neighbours
 
   def get_boundaries(self, filter_to=None):
@@ -145,10 +168,7 @@ class Grid(object):
     neighbours = {}
     for direction, fn in fns.items():
       p = fn(point)
-      if p in self.grid:
-        neighbours[direction] = self.grid[p]
-      else:
-        neighbours[direction] = None
+      neighbours[direction] = p
     return neighbours
 
 
@@ -201,6 +221,13 @@ class Grid(object):
     else:
       self.create_point(x, y, value)
 
+  def getvalue(self, x, y):
+    if (x, y) in self.grid:
+      return self.grid[(x, y)].value
+    else:
+      return None
+
+
   def get_by_char(self, char):
     return [v for k, v in self.grid.items() if v.value == char]
 
@@ -245,7 +272,7 @@ class Grid(object):
 
   def printgrid(self):
     for y in range(self.miny, self.maxy):
-      s = "%2d " % y
+      s = "%3d " % y
       for x in range(self.minx, self.maxx):
         if (x, y) not in self.grid:
           s += " "
@@ -259,7 +286,7 @@ class Grid(object):
 
   def printnocolor(self):
     for y in range(self.miny, self.maxy):
-      s = "%2d " % y
+      s = "%3d " % y
       for x in range(self.minx, self.maxx):
         if (x, y) not in self.grid:
           s += " "
@@ -270,11 +297,10 @@ class Grid(object):
   def printraw(self):
     """For use when the grid contains raw coordinates, not Points"""
     for y in range(self.miny, self.maxy):
-      s = "%2d " % y
+      s = "%3d " % y
       for x in range(self.minx, self.maxx):
         if (x, y) not in self.grid:
           s += " "
           continue
         s += "%s" % self.grid[(x, y)]
       print(s)
- 
