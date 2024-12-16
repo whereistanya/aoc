@@ -5,8 +5,6 @@ import sys
 sys.path.append("../../")
 import util.grid as gridlib
 
-from collections import deque
-
 filename = "input.txt"
 #filename = "test1"
 #filename = "test2"
@@ -54,13 +52,10 @@ def bfs(grid, start):
         nextpath.append(pos)
         # Score increases by 1 point for a move, 1000 for each 90 degree turn
         if turncost == 0: # same direction!
-          #print ("From", pos, ": No turn, move to", direction)
           to_check.append((point, direction, score + 1, nextpath))
         elif turncost == 1: # one 90 deg turn in either direction
-          #print ("From", pos, ": Turn once to", direction, "move")
           to_check.append((point, direction, score + 1001, nextpath))
         elif turncost == 2: # two 90 deg turns
-          #print ("From", pos, ":Turn twice to", direction, "move")
           to_check.append((point, direction, score + 2001, nextpath))
   return lowest, paths
 
