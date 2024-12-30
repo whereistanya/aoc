@@ -1,4 +1,5 @@
 from collections import defaultdict
+# TODO: rewrite with defaultdict
 
 class color:
    PURPLE = '\033[95m'
@@ -96,8 +97,15 @@ class Grid(object):
     return self.getpoint_from_xy(point.x + 1, point.y + 1)
 
 
-
-
+  def get_row(self, y):
+    """Return all the points in row y."""
+    ps = [self.grid[k] for k in self.grid if k[1] == y]
+    return ps
+    
+  def get_col(self, x):
+    """Return all the points in row y."""
+    ps = [self.grid[k] for k in self.grid if k[0] == x]
+    return ps
 
   def neighbours(self, point, diagonal=True, default_value=""):
     #print("Getting neighbours for %d,%d" % (point.x,point.y))
@@ -166,33 +174,33 @@ class Grid(object):
       "southeast": self.se_xy,
     }
     neighbours = {}
-    for direction, fn in fns.items():
-      p = fn(point)
-      neighbours[direction] = p
-    return neighbours
-
+    #for direction, fn in fns.items():
+    #  p = fn(point)
+    #  neighbours[direction] = p
+    #return neighbours
 
     if diagonal:
       # order is:
       # nw, n, ne, w, self, e, sw, s, se
-      to_add = [self.nw_xy(point), self.n_xy(point),  self.ne_xy(point),
-                self.w_xy(point),  (point.x, point.y),self.e_xy(point),
-                self.sw_xy(point), self.s_xy(point),  self.s_xy(point)]
+      to_add = ["northwest", "north", "northeast", "east", "southeast", "south", "southwest", "west"]
     else:
-      to_add = [self.e_xy(point), self.w_xy(point),
-                self.s_xy(point), self.n_xy(point)]
-    for neighbour in to_add:
-      if neighbour in self.grid:
-        neighbours.append(self.grid[neighbour])
-      else:
-        neighbours.append(None)
+      to_add = ["east", "north", "west", "south"]
+    for d in to_add:
+      p = fns[d](point)
+      neighbours[d] = p
+    return neighbours
+
+      #if neighbour in self.grid:
+      #  neighbours.append(self.grid[neighbour])
+      #else:
+      #  neighbours.append(None)
       #  if default_value != "":
       #    print("Neighbour %d,%d doesn't exist yet. Creating it." %
       #          (neighbour[0], neighbour[1]))
       #    new_point = self.create_point(neighbour[0], neighbour[1], default_value)
       #    neighbours.append(new_point)
       #    new_point = color.YELLOW
-    return neighbours
+    #return neighbours
 
   def create_point(self, x, y, value):
     #print("Creating a new point at %d,%d" % (x, y))
@@ -304,3 +312,4 @@ class Grid(object):
           continue
         s += "%s" % self.grid[(x, y)]
       print(s)
+ 
