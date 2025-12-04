@@ -294,7 +294,7 @@ class Grid(object):
           # skip missing points
           pass
 
-  def printgrid(self):
+  def printgrid(self, summary=True):
     for y in range(self.miny, self.maxy):
       s = "%3d " % y
       for x in range(self.minx, self.maxx):
@@ -304,9 +304,10 @@ class Grid(object):
         s += (self.grid[(x, y)].color + "%s" % self.grid[(x, y)].value +
               color.END)
       print(s)
-    print("\n")
-    print("x: min %d, max %d" % (self.minx, self.maxx))
-    print("y: min %d, max %d" % (self.miny, self.maxy))
+    if summary:
+      print("\n")
+      print("x: min %d, max %d" % (self.minx, self.maxx))
+      print("y: min %d, max %d" % (self.miny, self.maxy))
 
   def printnocolor(self):
     for y in range(self.miny, self.maxy):
