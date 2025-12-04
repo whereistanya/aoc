@@ -3,8 +3,7 @@
 import math
 import re
 import sys
-sys.path.append("../2021")
-import grid as g
+import util.grid as g
 
 test = False
 test = True

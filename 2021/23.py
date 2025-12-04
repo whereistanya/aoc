@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
 import copy
-import grid
+import util.grid as grid
 
 class Move(object):
   def __init__(self, cost, pod, move_from, move_to):

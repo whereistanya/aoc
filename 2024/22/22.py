@@ -1,7 +1,6 @@
 #!/usr/bin/env python
 
 import sys
-sys.path.append("../../")
 import util.grid as gridlib
 
 from collections import defaultdict

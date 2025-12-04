@@ -3,7 +3,6 @@
 
 import re
 import sys
-sys.path.append("../../")
 import util.grid
 filename = "input.txt"
 #filename = "test1"

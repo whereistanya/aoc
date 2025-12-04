@@ -6,7 +6,6 @@ test = False
 DEBUG = False
 
 import sys
-sys.path.append("../../")
 import util.grid as gridlib
 import math
 

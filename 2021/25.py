@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-import grid
+import util.grid as grid
 
 inputfile = "input25.txt"
 with open(inputfile, "r") as f:

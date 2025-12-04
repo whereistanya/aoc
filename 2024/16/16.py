@@ -2,7 +2,6 @@
 
 import math
 import sys
-sys.path.append("../../")
 import util.grid as gridlib
 
 filename = "input.txt"

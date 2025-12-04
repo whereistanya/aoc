@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-import grid
+import util.grid as grid
 
 inputfile = "input20.txt"
 inputfile = "input20.test"
@@ -45,7 +45,7 @@ def enhance(image, algorithm, default):
       to_check.append((x, y))
 
   for x, y in to_check:
-    point = image.getpoint(x, y, default_value)
+    point = image.getpoint_from_xy(x, y, default_value)
     index = getindex(point, default)
     new_value = algorithm[index]
     new_values[(point.x, point.y)] = new_value
