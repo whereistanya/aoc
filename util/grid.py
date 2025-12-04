@@ -1,5 +1,4 @@
-from collections import defaultdict
-# TODO: rewrite with defaultdict
+from enum import Enum
 
 class color:
    PURPLE = '\033[95m'
@@ -12,6 +11,23 @@ class color:
    BOLD = '\033[1m'
    UNDERLINE = '\033[4m'
    END = '\033[0m'
+
+class Direction(Enum):
+  NORTH = 0
+  NORTHEAST = 45
+  EAST = 90
+  SOUTHEAST = 135
+  SOUTH = 180
+  SOUTHWEST = 225
+  WEST = 270
+  NORTHWEST = 315
+
+  @classmethod
+  def rotate(cls, direction, degrees=45):
+    if direction in cls:
+      rotated = (direction.value + degrees) % 360
+      return cls(rotated)
+    raise ValueError("Invalid direction")
 
 class Point(object):
   def __init__(self, x, y, value, grid):
@@ -46,8 +62,8 @@ class Grid(object):
     self.maxx = 0
     self.maxy = 0
     self.populate()
+    self.direction = Direction.EAST # arbitrary starting direction
 
-  # TODO: update old code to use function names
   def nw(self, point):
     return self.getpoint_from_xy(point.x - 1, point.y - 1)
 
@@ -101,7 +117,7 @@ class Grid(object):
     """Return all the points in row y."""
     ps = [self.grid[k] for k in self.grid if k[1] == y]
     return ps
-    
+
   def get_col(self, x):
     """Return all the points in row y."""
     ps = [self.grid[k] for k in self.grid if k[0] == x]
@@ -136,7 +152,7 @@ class Grid(object):
 
     This function returns min and max *inclusive*.
     """
-    rows = {} # y: (min_x. max_x)
+    rows = {} # y: (min_x, max_x)
     cols = {} # x: (min_y, max_y)
 
     for x, y in self.grid.keys():
@@ -312,4 +328,4 @@ class Grid(object):
           continue
         s += "%s" % self.grid[(x, y)]
       print(s)
- 
+
